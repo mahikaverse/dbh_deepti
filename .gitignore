@@ -1,0 +1,23 @@
+# node modules
+**/node_modules
+
+# env
+**/.env
+**/.env.local
+
+# build
+**/dist
+**/build
+
+# logs
+**/*.log
+
+# vscode
+.vscode
+
+# idea
+.idea
+
+# OS
+.DS_Store
+Thumbs.db

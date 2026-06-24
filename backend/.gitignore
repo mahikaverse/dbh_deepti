@@ -1,0 +1,35 @@
+# dependencies
+node_modules
+
+# build output
+dist
+
+# prisma generated files
+prisma/dev.db
+prisma/dev.db-journal
+
+# environment
+.env
+.env.local
+
+# logs
+logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea
+
+# cache
+.cache
+
+# coverage
+coverage
+
+# ts build info
+*.tsbuildinfo
