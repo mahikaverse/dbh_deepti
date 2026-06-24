@@ -17,6 +17,18 @@ import RegisterPage from "./routes/register";
 import ForgotPasswordPage from "./routes/forgot-password";
 import VerifyOtpPage from "./routes/verify-otp";
 import ResetPasswordPage from "./routes/reset-password";
+import AdminDashboard from "./admin/pages/dashboard";
+import AdminInquiries from "./admin/pages/inquiries";
+import AdminArtists from "./admin/pages/artists";
+import AdminArtworks from "./admin/pages/artworks";
+import AdminUsers from "./admin/pages/users";
+import AdminNotifications from "./admin/pages/notifications";
+import AdminAnalytics from "./admin/pages/analytics";
+import AdminLoginPage from "./admin/pages/login";
+ 
+ 
+
+
 
 function App() {
   return (
@@ -45,8 +57,18 @@ function App() {
         <Route path="/notifications" element={<NotificationsPage />} />
        <Route path="/settings" element={<SettingsPage />} />
        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-
-
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/inquiries" element={<AdminInquiries />} />
+        
+        <Route path="/admin/artists" element={<AdminArtists />} />
+        <Route path="/admin/artworks" element={<AdminArtworks />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/admin/notifications" element={<AdminNotifications />} />
+        <Route path="/admin/analytics" element={<AdminAnalytics />} />
+<Route
+  path="/admin/login"
+  element={<AdminLoginPage />}
+/>
       </Routes>
     </BrowserRouter>
   );
