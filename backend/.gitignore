@@ -33,3 +33,4 @@ coverage
 
 # ts build info
 *.tsbuildinfo
+/generated/prisma

@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  password  String
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now())
+  artworks  Artwork[]
+  inquiries Inquiry[]
+}
+
+model Artwork {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  image       String
+  category    String
+  artistId    String
+  createdAt   DateTime  @default(now())
+  artist      User      @relation(fields: [artistId], references: [id])
+  inquiries   Inquiry[]
+}
+
+model Inquiry {
+  id             String        @id @default(cuid())
+  userId         String
+  artworkId      String
+  preferredFrame String?
+  preferredSize  String?
+  message        String?
+  status         InquiryStatus @default(NEW)
+  createdAt      DateTime      @default(now())
+  artwork        Artwork       @relation(fields: [artworkId], references: [id])
+  user           User          @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  USER
+  ARTIST
+  ADMIN
+}
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
