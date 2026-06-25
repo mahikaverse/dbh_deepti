@@ -23,4 +23,25 @@ router.patch(
   adminController.rejectArtist
 );
 
+router.get(
+  "/inquiries",
+  authMiddleware,
+  authorize("ADMIN"),
+  adminController.getAllInquiries
+);
+
+router.patch(
+  "/inquiries/:id",
+  authMiddleware,
+  authorize("ADMIN"),
+  adminController.updateInquiryStatus
+);
+
+router.get(
+  "/dashboard",
+  authMiddleware,
+  authorize("ADMIN"),
+  adminController.getDashboardAnalytics
+);
+
 export default router;

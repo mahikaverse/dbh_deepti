@@ -15,7 +15,7 @@ router.post(
 );
 
 router.get("/", artworkController.getAllArtworks);
-
+router.get("/explore", artworkController.getExploreArtworks);
 router.get("/:id", artworkController.getArtworkById);
 
 router.put(

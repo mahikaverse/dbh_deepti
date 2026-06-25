@@ -105,6 +105,36 @@ class ArtworkService {
       message: "Artwork deleted successfully",
     };
   }
+  async getExploreArtworks() {
+  return prisma.artwork.findMany({
+    where: {
+      isApproved: true,
+      isAvailable: true,
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      imageUrl: true,
+      category: true,
+      medium: true,
+      width: true,
+      height: true,
+      price: true,
+      frameAvailable: true,
+      createdAt: true,
+      artist: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+}
 }
 
 export default new ArtworkService();

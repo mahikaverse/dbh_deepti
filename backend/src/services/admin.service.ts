@@ -81,6 +81,73 @@ class AdminService {
       },
     });
   }
+  async getDashboardAnalytics() {
+  const [
+    totalUsers,
+    totalArtists,
+    totalArtworks,
+    approvedArtworks,
+    pendingArtworks,
+    totalInquiries,
+    newInquiries,
+    contactedInquiries,
+    completedInquiries,
+  ] = await Promise.all([
+    prisma.user.count({
+      where: { role: "USER" },
+    }),
+
+    prisma.user.count({
+      where: { role: "ARTIST" },
+    }),
+
+    prisma.artwork.count(),
+
+    prisma.artwork.count({
+      where: {
+        isApproved: true,
+      },
+    }),
+
+    prisma.artwork.count({
+      where: {
+        isApproved: false,
+      },
+    }),
+
+    prisma.inquiry.count(),
+
+    prisma.inquiry.count({
+      where: {
+        status: "NEW",
+      },
+    }),
+
+    prisma.inquiry.count({
+      where: {
+        status: "CONTACTED",
+      },
+    }),
+
+    prisma.inquiry.count({
+      where: {
+        status: "COMPLETED",
+      },
+    }),
+  ]);
+
+  return {
+    totalUsers,
+    totalArtists,
+    totalArtworks,
+    approvedArtworks,
+    pendingArtworks,
+    totalInquiries,
+    newInquiries,
+    contactedInquiries,
+    completedInquiries,
+  };
+}
 }
 
 export default new AdminService();

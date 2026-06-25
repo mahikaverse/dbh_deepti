@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth.routes";
 import artworkRoutes from "./routes/artwork.routes";
 import artistRoutes from "./routes/artist.routes";
 import adminRoutes from "./routes/admin.routes";
+import inquiryRoutes from "./routes/inquiry.routes";
 
 import errorMiddleware from "./middleware/error.middleware";
 
@@ -40,6 +41,8 @@ app.use("/api/artworks", artworkRoutes);
 app.use("/api/artist", artistRoutes);
 
 app.use("/api/admin", adminRoutes);
+
+app.use("/api/inquiries", inquiryRoutes);
 
 app.use(errorMiddleware);
 

@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import adminService from "../services/admin.service";
+import inquiryService from "../services/inquiry.service";
+import { InquiryStatus } from "@prisma/client";
 
 class AdminController {
   async getPendingArtists(req: Request, res: Response) {
@@ -54,6 +56,62 @@ class AdminController {
       });
     }
   }
+  async getAllInquiries(req: Request, res: Response) {
+  try {
+    const inquiries = await inquiryService.getAllInquiries();
+
+    return res.status(200).json({
+      success: true,
+      data: inquiries,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+async updateInquiryStatus(req: Request, res: Response) {
+  try {
+    const id = Array.isArray(req.params.id)
+      ? req.params.id[0]
+      : req.params.id;
+
+    const { status } = req.body;
+
+    const inquiry = await inquiryService.updateInquiryStatus(
+      id,
+      status as InquiryStatus
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Inquiry status updated successfully",
+      data: inquiry,
+    });
+  } catch (error: any) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+async getDashboardAnalytics(req: Request, res: Response) {
+  try {
+    const analytics =
+      await adminService.getDashboardAnalytics();
+
+    return res.status(200).json({
+      success: true,
+      data: analytics,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
 }
 
 export default new AdminController();

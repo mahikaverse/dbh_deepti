@@ -127,6 +127,21 @@ const result = await artworkService.deleteArtwork(
     });
   }
 }
+async getExploreArtworks(req: Request, res: Response) {
+  try {
+    const artworks = await artworkService.getExploreArtworks();
+
+    return res.status(200).json({
+      success: true,
+      data: artworks,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
 }
 
 export default new ArtworkController();
