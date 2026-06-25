@@ -1,11 +1,31 @@
 import { Request, Response } from "express";
 import artworkService from "../services/artwork.service";
+import uploadService from "../services/upload.service";
 import { createArtworkSchema } from "../validators/artwork.validator";
 
 class ArtworkController {
   async createArtwork(req: Request, res: Response) {
     try {
-      const data = createArtworkSchema.parse(req.body);
+      console.log("Headers:", req.headers["content-type"]);
+      console.log("BODY:", req.body);
+      console.log("FILE:", req.file);
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: "Artwork image is required",
+        });
+      }
+
+      const uploadResult: any = await uploadService.uploadImage(req.file);
+
+      const data = createArtworkSchema.parse({
+        ...req.body,
+        imageUrl: uploadResult.secure_url,
+        width: req.body.width ? Number(req.body.width) : undefined,
+        height: req.body.height ? Number(req.body.height) : undefined,
+        price: Number(req.body.price),
+        frameAvailable: req.body.frameAvailable === "true",
+      });
 
       const artistId = (req as any).user.id;
 
@@ -41,10 +61,11 @@ class ArtworkController {
   }
 
   async getArtworkById(req: Request, res: Response) {
-    try {
-      const artworkId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-      const artwork = await artworkService.getArtworkById(artworkId);
+    try {const id = Array.isArray(req.params.id)
+  ? req.params.id[0]
+  : req.params.id;
 
+const artwork = await artworkService.getArtworkById(id);
       return res.status(200).json({
         success: true,
         data: artwork,
