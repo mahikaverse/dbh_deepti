@@ -2,6 +2,9 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes";
+import artworkRoutes from "./routes/artwork.routes";
+import artistRoutes from "./routes/artist.routes";
+import adminRoutes from "./routes/admin.routes";
 
 dotenv.config();
 
@@ -31,5 +34,8 @@ app.get("/test", (req, res) => {
   res.json({ message: "Test OK" });
 });
 
+app.use("/api/artworks", artworkRoutes);
+app.use("/api/artist", artistRoutes);
+app.use("/api/admin", adminRoutes);
 console.log("Server Started Successfully");
 
