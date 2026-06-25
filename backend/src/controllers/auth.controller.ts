@@ -4,7 +4,7 @@ import {
   loginSchema,
   registerSchema,
 } from "../validators/auth.validator";
-console.log("✅ Register endpoint hit");
+
 class AuthController {
   async register(req: Request, res: Response) {
     try {

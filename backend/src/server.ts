@@ -24,8 +24,12 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
+import errorMiddleware from "./middleware/error.middleware";
+app.use(errorMiddleware);
+
 app.get("/test", (req, res) => {
   res.json({ message: "Test OK" });
 });
 
 console.log("Server Started Successfully");
+

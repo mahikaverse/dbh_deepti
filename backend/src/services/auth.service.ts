@@ -4,6 +4,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
 } from "../utils/jwt";
+import AppError from "../errors/AppError";
 
 interface RegisterInput {
   name: string;
@@ -26,7 +27,10 @@ class AuthService {
     });
 
     if (existingUser) {
-      throw new Error("Email already registered");
+      throw new AppError(
+   "Email already registered",
+   409
+);
     }
 
     const hashedPassword = await hashPassword(data.password);
@@ -70,7 +74,10 @@ class AuthService {
     });
 
     if (!user) {
-      throw new Error("Invalid email or password");
+      throw new AppError(
+   "Invalid email or password",
+   401
+);
     }
 
     const isMatch = await comparePassword(
@@ -79,8 +86,7 @@ class AuthService {
     );
 
     if (!isMatch) {
-      throw new Error("Invalid email or password");
-    }
+      throw new AppError("Invalid email or password", 401);   }
 
     const accessToken = generateAccessToken({
       id: user.id,
@@ -117,8 +123,7 @@ class AuthService {
     });
 
     if (!user) {
-      throw new Error("User not found");
-    }
+      throw new AppError("User not found", 404);    }
 
     return user;
   }
