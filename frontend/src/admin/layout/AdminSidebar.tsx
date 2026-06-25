@@ -52,10 +52,8 @@ export default function AdminSidebar() {
   const location = useLocation();
 
   return (
-    <aside className="fixed left-0 top-0 flex h-screen w-[280px] flex-col border-r border-[#ECE6DB] bg-white">
-      
-      {/* Logo Section */}
-      <div className="flex items-center gap-3   p-6 flex-shrink-0">
+    <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[280px] flex-col border-r border-[#ECE6DB] bg-white md:flex">
+      <div className="flex flex-shrink-0 items-center gap-3 p-6">
         <img
           src={logo}
           alt="Deepti Art"
@@ -73,7 +71,6 @@ export default function AdminSidebar() {
         </div>
       </div>
 
-      {/* Scrollable Navigation */}
       <nav className="flex-1 overflow-y-auto p-4">
         <div className="space-y-2">
           {menuItems.map((item) => {
@@ -102,8 +99,6 @@ export default function AdminSidebar() {
           })}
         </div>
       </nav>
-
-       
     </aside>
   );
 }
