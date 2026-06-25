@@ -77,6 +77,56 @@ const artwork = await artworkService.getArtworkById(id);
       });
     }
   }
+  async updateArtwork(req: Request, res: Response) {
+  try {
+    const artistId = (req as any).user.id;
+
+    const id = Array.isArray(req.params.id)
+  ? req.params.id[0]
+  : req.params.id;
+
+const artwork = await artworkService.updateArtwork(
+  id,
+  artistId,
+  req.body
+);
+
+    return res.status(200).json({
+      success: true,
+      message: "Artwork updated successfully",
+      data: artwork,
+    });
+  } catch (error: any) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+async deleteArtwork(req: Request, res: Response) {
+  try {
+    const artistId = (req as any).user.id;
+
+    const id = Array.isArray(req.params.id)
+  ? req.params.id[0]
+  : req.params.id;
+
+const result = await artworkService.deleteArtwork(
+  id,
+  artistId
+);
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error: any) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
 }
 
 export default new ArtworkController();

@@ -18,4 +18,18 @@ router.get("/", artworkController.getAllArtworks);
 
 router.get("/:id", artworkController.getArtworkById);
 
+router.put(
+  "/:id",
+  authMiddleware,
+  authorize("ARTIST", "ADMIN"),
+  artworkController.updateArtwork
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  authorize("ARTIST", "ADMIN"),
+  artworkController.deleteArtwork
+);
+
 export default router;
