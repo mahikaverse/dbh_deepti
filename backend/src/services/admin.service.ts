@@ -2,6 +2,10 @@ import prisma from "../config/prisma";
 import AppError from "../errors/AppError";
 
 class AdminService {
+  // ===========================
+  // Pending Artist Applications
+  // ===========================
+
   async getPendingArtists() {
     return prisma.artistProfile.findMany({
       where: {
@@ -23,6 +27,10 @@ class AdminService {
     });
   }
 
+  // ===========================
+  // Approve Artist
+  // ===========================
+
   async approveArtist(profileId: string) {
     const profile = await prisma.artistProfile.findUnique({
       where: {
@@ -34,8 +42,12 @@ class AdminService {
       throw new AppError("Artist profile not found", 404);
     }
 
+    if (profile.status === "APPROVED") {
+      throw new AppError("Artist already approved", 400);
+    }
+
     return prisma.$transaction(async (tx) => {
-      await tx.artistProfile.update({
+      const updatedProfile = await tx.artistProfile.update({
         where: {
           id: profileId,
         },
@@ -54,11 +66,13 @@ class AdminService {
         },
       });
 
-      return {
-        success: true,
-      };
+      return updatedProfile;
     });
   }
+
+  // ===========================
+  // Reject Artist
+  // ===========================
 
   async rejectArtist(profileId: string, reason: string) {
     const profile = await prisma.artistProfile.findUnique({
@@ -71,6 +85,10 @@ class AdminService {
       throw new AppError("Artist profile not found", 404);
     }
 
+    if (profile.status === "REJECTED") {
+      throw new AppError("Artist already rejected", 400);
+    }
+
     return prisma.artistProfile.update({
       where: {
         id: profileId,
@@ -81,73 +99,124 @@ class AdminService {
       },
     });
   }
+
+  // ===========================
+  // Dashboard Analytics
+  // ===========================
+
   async getDashboardAnalytics() {
-  const [
-    totalUsers,
-    totalArtists,
-    totalArtworks,
-    approvedArtworks,
-    pendingArtworks,
-    totalInquiries,
-    newInquiries,
-    contactedInquiries,
-    completedInquiries,
-  ] = await Promise.all([
-    prisma.user.count({
-      where: { role: "USER" },
-    }),
+    const [
+      totalUsers,
+      totalArtists,
+      totalAdmins,
 
-    prisma.user.count({
-      where: { role: "ARTIST" },
-    }),
+      totalArtworks,
+      approvedArtworks,
+      pendingArtworks,
+      soldArtworks,
 
-    prisma.artwork.count(),
+      totalInquiries,
+      newInquiries,
+      contactedInquiries,
+      confirmedInquiries,
+      completedInquiries,
+      cancelledInquiries,
+    ] = await Promise.all([
+      prisma.user.count({
+        where: {
+          role: "USER",
+        },
+      }),
 
-    prisma.artwork.count({
-      where: {
-        isApproved: true,
+      prisma.user.count({
+        where: {
+          role: "ARTIST",
+        },
+      }),
+
+      prisma.user.count({
+        where: {
+          role: "ADMIN",
+        },
+      }),
+
+      prisma.artwork.count(),
+
+      prisma.artwork.count({
+        where: {
+          isApproved: true,
+        },
+      }),
+
+      prisma.artwork.count({
+        where: {
+          isApproved: false,
+        },
+      }),
+
+      prisma.artwork.count({
+        where: {
+          isAvailable: false,
+        },
+      }),
+
+      prisma.inquiry.count(),
+
+      prisma.inquiry.count({
+        where: {
+          status: "NEW",
+        },
+      }),
+
+      prisma.inquiry.count({
+        where: {
+          status: "CONTACTED",
+        },
+      }),
+
+      prisma.inquiry.count({
+        where: {
+          status: "CONFIRMED",
+        },
+      }),
+
+      prisma.inquiry.count({
+        where: {
+          status: "COMPLETED",
+        },
+      }),
+
+      prisma.inquiry.count({
+        where: {
+          status: "CANCELLED",
+        },
+      }),
+    ]);
+
+    return {
+      users: {
+        totalUsers,
+        totalArtists,
+        totalAdmins,
       },
-    }),
 
-    prisma.artwork.count({
-      where: {
-        isApproved: false,
+      artworks: {
+        totalArtworks,
+        approvedArtworks,
+        pendingArtworks,
+        soldArtworks,
       },
-    }),
 
-    prisma.inquiry.count(),
-
-    prisma.inquiry.count({
-      where: {
-        status: "NEW",
+      inquiries: {
+        totalInquiries,
+        newInquiries,
+        contactedInquiries,
+        confirmedInquiries,
+        completedInquiries,
+        cancelledInquiries,
       },
-    }),
-
-    prisma.inquiry.count({
-      where: {
-        status: "CONTACTED",
-      },
-    }),
-
-    prisma.inquiry.count({
-      where: {
-        status: "COMPLETED",
-      },
-    }),
-  ]);
-
-  return {
-    totalUsers,
-    totalArtists,
-    totalArtworks,
-    approvedArtworks,
-    pendingArtworks,
-    totalInquiries,
-    newInquiries,
-    contactedInquiries,
-    completedInquiries,
-  };
-}
+    };
+  }
 }
 
 export default new AdminService();

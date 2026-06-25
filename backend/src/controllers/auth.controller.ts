@@ -4,6 +4,7 @@ import {
   loginSchema,
   registerSchema,
 } from "../validators/auth.validator";
+import { ZodError } from "zod";
 
 class AuthController {
   async register(req: Request, res: Response) {
@@ -18,11 +19,19 @@ class AuthController {
         data: result,
       });
     } catch (error: any) {
-      return res.status(400).json({
-        success: false,
-        message: error.message,
-      });
-    }
+
+  if (error instanceof ZodError) {
+    return res.status(400).json({
+      success: false,
+      message: error.issues[0].message,
+    });
+  }
+
+  return res.status(400).json({
+    success: false,
+    message: error.message,
+  });
+}
   }
 
   async login(req: Request, res: Response) {

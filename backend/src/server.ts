@@ -7,8 +7,9 @@ import artworkRoutes from "./routes/artwork.routes";
 import artistRoutes from "./routes/artist.routes";
 import adminRoutes from "./routes/admin.routes";
 import inquiryRoutes from "./routes/inquiry.routes";
-
+import uploadRoutes from "./routes/upload.routes";
 import errorMiddleware from "./middleware/error.middleware";
+import devRoutes from "./routes/dev.routes";
 
 dotenv.config();
 
@@ -43,7 +44,8 @@ app.use("/api/artist", artistRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.use("/api/inquiries", inquiryRoutes);
-
+app.use("/api/upload", uploadRoutes);
+app.use("/api/dev", devRoutes);
 app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 5000;

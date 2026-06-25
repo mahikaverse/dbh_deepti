@@ -6,7 +6,8 @@ import {
   Circle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-
+import { createArtwork } from "../../api/artwork.api";
+import { useNavigate } from "react-router-dom";
 import ArtistLayout from "../layout/ArtistLayout";
 
 import ImageUploader from "../components/ImageUploader";
@@ -17,6 +18,9 @@ import ArtworkPreview from "../components/ArtworkPreview";
 
 export default function UploadArtworkPage() {
 
+const navigate = useNavigate();
+
+const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<File[]>([]);
 
   const [tags, setTags] = useState<string[]>([]);
@@ -41,16 +45,64 @@ export default function UploadArtworkPage() {
     shipping: "Worldwide",
   });
 
-  const publishArtwork = () => {
-    console.log({
-      form,
-      pricing,
-      tags,
-      images,
-    });
+  const publishArtwork = async () => {
+  try {
+    if (images.length === 0) {
+      alert("Please upload an artwork image.");
+      return;
+    }
 
-    alert("Artwork Published Successfully 🚀");
-  };
+    if (!form.title) {
+      alert("Please enter artwork title.");
+      return;
+    }
+
+    if (!pricing.price) {
+      alert("Please enter artwork price.");
+      return;
+    }
+
+    setLoading(true);
+
+    const formData = new FormData();
+
+    // image
+    formData.append("image", images[0]);
+
+    // artwork details
+    formData.append("title", form.title);
+    formData.append("description", form.description);
+    formData.append("category", form.category);
+    formData.append("medium", form.medium);
+
+    formData.append("width", form.width);
+    formData.append("height", form.height);
+
+    formData.append("price", pricing.price);
+
+    formData.append(
+      "frameAvailable",
+      pricing.framed.toString()
+    );
+
+    await createArtwork(formData);
+
+    alert(
+  "Artwork submitted successfully!\n\nYour artwork is now under admin review. It will appear on Deepti Art after approval."
+);
+
+    navigate("/artist/my-artworks");
+  } catch (err: any) {
+    console.error(err);
+
+    alert(
+      err?.response?.data?.message ??
+        "Failed to upload artwork"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   const saveDraft = () => {
     console.log("Draft Saved");
@@ -142,12 +194,11 @@ export default function UploadArtworkPage() {
             </button>
 
             <button
-              onClick={publishArtwork}
-              className="rounded-xl bg-[#D6A354] px-8 py-3 font-medium text-white hover:bg-[#C69649]"
+            onClick={publishArtwork}
+            disabled={loading}
+            className="rounded-xl bg-[#D6A354] px-8 py-3 font-medium text-white hover:bg-[#C69649] disabled:opacity-60"
             >
-
-              Publish Artwork
-
+            {loading ? "Publishing..." : "Publish Artwork"}
             </button>
 
           </div>

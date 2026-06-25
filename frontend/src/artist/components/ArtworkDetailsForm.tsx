@@ -18,14 +18,42 @@ type Props = {
 };
 
 const categories = [
-  "Painting",
-  "Digital Art",
-  "Sketch",
-  "Photography",
-  "Abstract",
-  "Nature",
-  "Portrait",
-  "Spiritual",
+  {
+    label: "Spiritual",
+    value: "SPIRITUAL",
+  },
+  {
+    label: "Nature",
+    value: "NATURE",
+  },
+  {
+    label: "Portrait",
+    value: "PORTRAIT",
+  },
+  {
+    label: "Abstract",
+    value: "ABSTRACT",
+  },
+  {
+    label: "Landscape",
+    value: "LANDSCAPE",
+  },
+  {
+    label: "Sketch",
+    value: "SKETCH",
+  },
+  {
+    label: "Heritage",
+    value: "HERITAGE",
+  },
+  {
+    label: "Modern",
+    value: "MODERN",
+  },
+  {
+    label: "Other",
+    value: "OTHER",
+  },
 ];
 
 const mediums = [
@@ -145,12 +173,18 @@ export default function ArtworkDetailsForm({
 
             <option>Select Category</option>
 
-            {categories.map((item) => (
-              <option key={item}>
-                {item}
-              </option>
-            ))}
+           <option value="">
+  Select Category
+</option>
 
+{categories.map((item) => (
+  <option
+    key={item.value}
+    value={item.value}
+  >
+    {item.label}
+  </option>
+))}
           </select>
 
         </div>

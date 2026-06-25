@@ -5,19 +5,28 @@ import {
   Settings,
   ArrowRight,
 } from "lucide-react";
-
+import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 
 import AppHeader from "../components/layout/AppHeader";
 import Footer from "../components/layout/Footer";
 
 export default function ProfilePage() {
+const { user } = useAuth();
+if (!user) {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-[#FAF8F4]">
+      <p className="text-lg text-gray-500">Loading profile...</p>
+    </div>
+  );
+}
+
   return (
     <div className="min-h-screen bg-[#FAF8F4]">
 
       <AppHeader />
 
-      <main className="max-w-7xl mx-auto px-6 py-10">
+      <main className="mx-auto w-full max-w-4xl px-6 py-10">
 
         {/* HERO */}
 
@@ -44,21 +53,34 @@ export default function ProfilePage() {
               <div>
 
                 <img
-                  src="https://i.pravatar.cc/300"
-                  alt=""
-                  className="h-32 w-32 rounded-full border-4 border-white object-cover shadow-lg"
-                />
+                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+                  user.name
+                )}&background=D6A354&color=ffffff&size=256`}
+                alt={user.name}
+                className="h-32 w-32 rounded-full border-4 border-white object-cover shadow-lg"
+              />
 
                 <h1 className="mt-4 text-4xl font-serif text-[#1B1B1B]">
-                  Mahika Chaurasiya
+                 {user.name}
                 </h1>
-
-                <p className="mt-1 text-gray-500">
-                  Art Collector & Enthusiast
+                
+                <p className="mt-2 text-gray-600">
+                {user.email}
                 </p>
 
+
+
+                <p className="mt-1 text-gray-500">
+                  {user.role === "ADMIN"
+                  ? "Administrator"
+                  : user.role === "ARTIST"
+                  ? "Verified Artist"
+                  : "Art Collector"}
+                </p>
+
+                 
                 <p className="mt-2 text-sm text-gray-400">
-                  Member since June 2026
+                 Member of Deepti Art
                 </p>
 
               </div>

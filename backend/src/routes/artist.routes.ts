@@ -16,4 +16,32 @@ router.get(
   artistController.getProfile
 );
 
+router.get(
+  "/dashboard",
+  authMiddleware,
+  artistController.getDashboard
+);
+
+router.get(
+  "/artworks",
+  authMiddleware,
+  artistController.getMyArtworks
+);
+
+router.get(
+  "/status",
+  authMiddleware,
+  artistController.getStatus
+);
+
+
+
+
+
+
+
+
+
+
+
 export default router;

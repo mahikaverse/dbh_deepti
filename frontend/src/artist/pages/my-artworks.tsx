@@ -3,90 +3,18 @@ import {
   Search,
   Filter,
   Plus,
-  Eye,
-  Heart,
-  MessageCircle,
-  Pencil,
-  Trash2,
-  Copy,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import ArtistLayout from "../layout/ArtistLayout";
 
-const artworks = [
-  {
-    id: 1,
-    title: "Golden Horizon",
-    image:
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=900",
-    price: "₹24,000",
-    status: "Published",
-    views: 1452,
-    likes: 183,
-    inquiries: 21,
-  },
-  {
-    id: 2,
-    title: "Lotus Serenity",
-    image:
-      "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=900",
-    price: "₹18,000",
-    status: "Pending",
-    views: 520,
-    likes: 61,
-    inquiries: 7,
-  },
-  {
-    id: 3,
-    title: "Modern Nature",
-    image:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=900",
-    price: "₹15,500",
-    status: "Draft",
-    views: 0,
-    likes: 0,
-    inquiries: 0,
-  },
-  {
-    id: 4,
-    title: "Abstract Vision",
-    image:
-      "https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=900",
-    price: "₹27,500",
-    status: "Published",
-    views: 2670,
-    likes: 350,
-    inquiries: 45,
-  },
-  {
-    id: 5,
-    title: "Urban Dreams",
-    image:
-      "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=900",
-    price: "₹19,000",
-    status: "Sold",
-    views: 4820,
-    likes: 520,
-    inquiries: 81,
-  },
-  {
-    id: 6,
-    title: "Sunset Bliss",
-    image:
-      "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=900",
-    price: "₹22,000",
-    status: "Rejected",
-    views: 220,
-    likes: 12,
-    inquiries: 1,
-  },
-];
+import ArtistLayout from "../layout/ArtistLayout";
+import { useMyArtworks } from "../../hooks/useMyArtworks";
+import StatCard from "../components/ArtistStatCard";
+import ArtworkCard from "../components/ArtworkCard";
 
 const filters = [
   "All",
-  "Published",
-  "Pending",
-  "Draft",
+  "Pending Review",
+  "Approved",
   "Rejected",
   "Sold",
 ];
@@ -95,24 +23,64 @@ export default function MyArtworksPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("All");
 
+  const {
+    artworks,
+    loading,
+    reload,
+  } = useMyArtworks();
+
   const filtered = useMemo(() => {
-    return artworks.filter((art) => {
+    return artworks.filter((art: any) => {
       const matchesSearch = art.title
         .toLowerCase()
         .includes(search.toLowerCase());
 
+      let artworkStatus = "Pending Review";
+
+if (art.isApproved) {
+  artworkStatus = "Approved";
+}
+
+if (!art.isAvailable) {
+  artworkStatus = "Sold";
+}
+
+if (art.rejectionReason) {
+  artworkStatus = "Rejected";
+}
+
       const matchesStatus =
-        status === "All" || art.status === status;
+        status === "All" ||
+        artworkStatus === status;
 
       return matchesSearch && matchesStatus;
     });
-  }, [search, status]);
+  }, [artworks, search, status]);
+
+  if (loading) {
+    return (
+      <ArtistLayout>
+        <div className="flex h-[70vh] items-center justify-center">
+          <div className="text-center">
+
+            <div className="mx-auto h-14 w-14 animate-spin rounded-full border-4 border-[#D6A354] border-t-transparent" />
+
+            <p className="mt-6 text-lg text-gray-500">
+              Loading your artworks...
+            </p>
+
+          </div>
+        </div>
+      </ArtistLayout>
+    );
+  }
 
   return (
     <ArtistLayout>
+
       <main className="min-w-0">
 
-        {/* Header */}
+        {/* HEADER */}
 
         <div className="flex items-center justify-between">
 
@@ -130,43 +98,57 @@ export default function MyArtworksPage() {
 
           <Link
             to="/artist/upload-artwork"
-            className="flex items-center gap-2 rounded-xl bg-[#D6A354] px-6 py-3 text-white"
+            className="flex items-center gap-2 rounded-xl bg-[#D6A354] px-6 py-3 text-white transition hover:bg-[#c69649]"
           >
             <Plus size={18} />
+
             Upload Artwork
+
           </Link>
 
         </div>
 
-        {/* Stats */}
+        {/* STATS */}
 
-        <div className="mt-10 grid grid-cols-4 gap-6">
+        <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
 
           <StatCard
-            title="Total"
+            title="Total Artworks"
             value={artworks.length.toString()}
           />
 
           <StatCard
-            title="Published"
-            value="2"
+            title="Approved"
+            value={
+              artworks
+                .filter((a: any) => a.isApproved)
+                .length.toString()
+            }
           />
 
           <StatCard
-            title="Pending"
-            value="1"
+            title="Pending Review"
+            value={
+              artworks
+                .filter((a: any) => !a.isApproved)
+                .length.toString()
+            }
           />
 
           <StatCard
             title="Sold"
-            value="1"
+            value={
+              artworks
+                .filter((a: any) => !a.isAvailable)
+                .length.toString()
+            }
           />
 
         </div>
 
-        {/* Search + Filter */}
+        {/* SEARCH */}
 
-        <div className="mt-10 flex gap-4">
+        <div className="mt-10 flex flex-col gap-4 lg:flex-row">
 
           <div className="relative flex-1">
 
@@ -180,7 +162,7 @@ export default function MyArtworksPage() {
               onChange={(e) =>
                 setSearch(e.target.value)
               }
-              placeholder="Search artworks..."
+              placeholder="Search artwork..."
               className="h-12 w-full rounded-xl border border-[#ECE6DB] bg-white pl-12 pr-4 outline-none"
             />
 
@@ -211,184 +193,169 @@ export default function MyArtworksPage() {
 
         </div>
 
-        {/* Artwork Grid starts here */}
+                {/* ARTWORK GRID */}
 
-        <div className="mt-10 grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-10">
 
-  {filtered.map((artwork) => (
+          {filtered.length === 0 ? (
 
-    <div
-      key={artwork.id}
-      className="overflow-hidden rounded-3xl border border-[#ECE6DB] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-    >
+            <div className="rounded-3xl border border-[#ECE6DB] bg-white p-16 text-center shadow-sm">
 
-      {/* IMAGE */}
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png"
+                alt=""
+                className="mx-auto h-24 w-24 opacity-70"
+              />
 
-      <div className="relative">
+              <h2 className="mt-6 text-2xl font-semibold">
+                No artworks uploaded yet
+              </h2>
 
-        <img
-          src={artwork.image}
-          alt={artwork.title}
-          className="h-72 w-full object-cover"
-        />
+              <p className="mt-3 text-gray-500">
+                Upload your first artwork. Every submission will be reviewed by our admin team before it becomes visible to collectors.
+              </p>
 
-        <span
-          className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-medium text-white
-          ${
-            artwork.status === "Published"
-              ? "bg-green-600"
-              : artwork.status === "Pending"
-              ? "bg-yellow-500"
-              : artwork.status === "Draft"
-              ? "bg-gray-500"
-              : artwork.status === "Rejected"
-              ? "bg-red-500"
-              : "bg-blue-600"
-          }`}
-        >
-          {artwork.status}
-        </span>
+              <Link
+                to="/artist/upload-artwork"
+                className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#D6A354] px-6 py-3 font-medium text-white transition hover:bg-[#c69649]"
+              >
+                <Plus size={18} />
+                Upload Artwork
+              </Link>
 
-      </div>
+            </div>
 
-      {/* BODY */}
+          ) : (
 
-      <div className="p-5">
+            <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
 
-        <div className="flex items-start justify-between">
+              {filtered.map((artwork: any) => (
 
-          <div>
+                <ArtworkCard
+                  key={artwork.id}
+                  artwork={artwork}
+                  reload={reload}
+                />
 
-            <h2 className="text-xl font-semibold">
-              {artwork.title}
-            </h2>
+              ))}
 
-            <p className="mt-1 text-lg font-bold text-[#D6A354]">
-              {artwork.price}
-            </p>
+            </div>
 
-          </div>
+          )}
 
         </div>
-
-        {/* Analytics */}
-
-        <div className="mt-6 grid grid-cols-3 gap-4 rounded-2xl bg-[#FAF8F4] p-4">
-
-          <div className="text-center">
-
-            <Eye
-              size={18}
-              className="mx-auto text-gray-500"
-            />
-
-            <p className="mt-2 text-sm font-semibold">
-              {artwork.views}
-            </p>
-
-            <p className="text-xs text-gray-500">
-              Views
-            </p>
-
-          </div>
-
-          <div className="text-center">
-
-            <Heart
-              size={18}
-              className="mx-auto text-red-500"
-            />
-
-            <p className="mt-2 text-sm font-semibold">
-              {artwork.likes}
-            </p>
-
-            <p className="text-xs text-gray-500">
-              Saves
-            </p>
-
-          </div>
-
-          <div className="text-center">
-
-            <MessageCircle
-              size={18}
-              className="mx-auto text-blue-500"
-            />
-
-            <p className="mt-2 text-sm font-semibold">
-              {artwork.inquiries}
-            </p>
-
-            <p className="text-xs text-gray-500">
-              Inquiries
-            </p>
-
-          </div>
-
-        </div>
-
-        {/* Actions */}
-
-        <div className="mt-6 grid grid-cols-3 gap-3">
-
-          <button className="flex items-center justify-center gap-2 rounded-xl border border-[#ECE6DB] py-3 transition hover:bg-[#FAF8F4]">
-
-            <Pencil size={18} />
-
-            Edit
-
-          </button>
-
-          <button className="flex items-center justify-center gap-2 rounded-xl border border-[#ECE6DB] py-3 transition hover:bg-[#FAF8F4]">
-
-            <Copy size={18} />
-
-            Copy
-
-          </button>
-
-          <button className="flex items-center justify-center gap-2 rounded-xl border border-red-200 py-3 text-red-600 transition hover:bg-red-50">
-
-            <Trash2 size={18} />
-
-            Delete
-
-          </button>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  ))}
-
-</div>
 
       </main>
+
     </ArtistLayout>
-);
-}
 
-function StatCard({
-  title,
-  value,
-}: {
-  title: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-3xl border border-[#ECE6DB] bg-white p-6 shadow-sm">
-
-      <p className="text-gray-500">
-        {title}
-      </p>
-
-      <h2 className="mt-3 text-4xl font-bold text-[#1B1B1B]">
-        {value}
-      </h2>
-
-    </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 

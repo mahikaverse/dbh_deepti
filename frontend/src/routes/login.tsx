@@ -2,7 +2,66 @@ import { Link } from "react-router-dom";
 import { Mail, Lock, ArrowRight } from "lucide-react";
 import logo from "../assets/logo.png";
 
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { saveTokens } from "../utils/authStorage";
+import { login } from "../api/auth.api";
+ 
+import { useAuth } from "../context/AuthContext";
+
 export default function LoginPage() {
+
+const navigate = useNavigate();
+
+const [email, setEmail] = useState("");
+
+const [password, setPassword] = useState("");
+
+const [loading, setLoading] = useState(false);
+
+const [error, setError] = useState("");
+const { refreshUser } = useAuth();
+
+async function handleLogin() {
+  try {
+    setLoading(true);
+    setError("");
+
+    const data = await login({
+      email,
+      password,
+    });
+
+    saveTokens(
+      data.accessToken,
+      data.refreshToken
+    );
+
+    await refreshUser();
+
+    if (data.user.role === "ADMIN") {
+  navigate("/admin/dashboard");
+  return;
+}
+
+navigate("/");
+
+    if (data.user.role === "ARTIST") {
+      navigate("/artist/dashboard");
+      return;
+    }
+
+    navigate("/");
+  } catch (err: any) {
+    setError(
+      err?.response?.data?.message ||
+        "Login failed"
+    );
+  } finally {
+    setLoading(false);
+  }
+}
+
   return (
     <div className="h-screen overflow-hidden bg-[#FAF8F4] flex">
 
@@ -71,10 +130,12 @@ export default function LoginPage() {
               <Mail size={18} />
 
               <input
-                type="email"
-                placeholder="Enter your email"
-                className="h-14 flex-1 outline-none"
-              />
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-14 flex-1 outline-none"
+            />
 
             </div>
 
@@ -93,10 +154,12 @@ export default function LoginPage() {
               <Lock size={18} />
 
               <input
-                type="password"
-                placeholder="Enter password"
-                className="h-14 flex-1 outline-none"
-              />
+              type="password"
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="h-14 flex-1 outline-none"
+            />
 
             </div>
 
@@ -114,14 +177,24 @@ export default function LoginPage() {
           </div>
 
           {/* LOGIN */}
+         
+         {
+            error && (
+              <div className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">
+                {error}
+              </div>
+            )
+          }
 
-          <button className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#D6A354] py-4 text-white font-medium hover:bg-[#C69649]">
+         <button
+          onClick={handleLogin}
+          disabled={loading}
+          className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#D6A354] py-4 font-medium text-white transition hover:bg-[#C69649] disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {loading ? "Logging in..." : "Login"}
 
-            Login
-
-            <ArrowRight size={18} />
-
-          </button>
+          {!loading && <ArrowRight size={18} />}
+        </button>
 
           {/* REGISTER */}
 
