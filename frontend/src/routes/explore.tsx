@@ -2,74 +2,8 @@ import AppHeader from "../components/layout/AppHeader";
 import SearchBar from "../components/common/SearchBar";
 import Footer from "../components/layout/Footer";
 import ArtworkCard from "../components/artwork/ArtworkCard";
-
-const artworks = [
-  {
-    id: 1,
-    title: "Sunset Over Silence",
-    artist: "Priya Sharma",
-    price: "₹24,000",
-    image:
-      "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=600",
-  },
-  {
-    id: 2,
-    title: "Ethereal Dreams",
-    artist: "Arjun Verma",
-    price: "₹18,500",
-    image:
-      "https://images.unsplash.com/photo-1578301979108-0d3f2fd9bdf5?w=600",
-  },
-  {
-    id: 3,
-    title: "Lotus Serenity",
-    artist: "Neha Kapoor",
-    price: "₹15,000",
-    image:
-      "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=600",
-  },
-  {
-    id: 4,
-    title: "Golden Horizon",
-    artist: "Meera Iyer",
-    price: "₹23,000",
-    image:
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600",
-  },
-  {
-    id: 5,
-    title: "Nature Calm",
-    artist: "Rohan Das",
-    price: "₹19,000",
-    image:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600",
-  },
-  {
-    id: 6,
-    title: "Abstract Vision",
-    artist: "Kavya Nair",
-    price: "₹16,500",
-    image:
-      "https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=600",
-  },
-  {
-    id: 7,
-    title: "Modern Gallery",
-    artist: "Aryan Shah",
-    price: "₹21,000",
-    image:
-      "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=600",
-  },
-  {
-    id: 8,
-    title: "Urban Dreams",
-    artist: "Aditi Rao",
-    price: "₹20,000",
-    image:
-      "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=600",
-  },
-];
-
+import { useEffect, useState } from "react";
+import { getExploreArtworks } from "../api/artwork.api";
 const categories = [
   "All",
   "Paintings",
@@ -79,8 +13,34 @@ const categories = [
   "Photography",
   "Abstract",
 ];
-
 export default function ExplorePage() {
+const [artworks, setArtworks] = useState<any[]>([]);
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  loadArtworks();
+}, []);
+
+const loadArtworks = async () => {
+  try {
+    const data = await getExploreArtworks();
+
+    console.log(data);
+
+    setArtworks(data);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+if (loading) {
+  return (
+    <div className="flex h-screen items-center justify-center">
+      Loading...
+    </div>
+  );
+}
   return (
     <div className="min-h-screen bg-[#FAF8F4]">
       <AppHeader />
@@ -129,9 +89,9 @@ export default function ExplorePage() {
     >
       <ArtworkCard
   id={artwork.id}
-  image={artwork.image}
+  image={artwork.imageUrl}
   title={artwork.title}
-  artist={artwork.artist}
+  artist={artwork.artist.name}
   price={artwork.price}
 />
     </div>

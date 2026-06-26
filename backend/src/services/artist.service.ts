@@ -189,6 +189,78 @@ class ArtistService {
       recentArtworks,
     };
   }
+ // ===========================
+// Get Approved Artists
+// ===========================
+
+async getApprovedArtists() {
+  return prisma.user.findMany({
+    where: {
+  role: "ARTIST",
+
+  artistProfile: {
+    is: {
+      status: "APPROVED",
+    },
+  },
+},
+
+    include: {
+      artistProfile: true,
+
+      artworks: {
+        where: {
+          isApproved: true,
+          isAvailable: true,
+        },
+
+        select: {
+          id: true,
+        },
+      },
+    },
+
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+}
+// ===========================
+// Get Artist By ID
+// ===========================
+
+async getArtistById(id: string) {
+  const artist = await prisma.user.findFirst({
+    where: {
+      id,
+      role: "ARTIST",
+      artistProfile: {
+        status: "APPROVED",
+      },
+    },
+
+    include: {
+      artistProfile: true,
+
+      artworks: {
+        where: {
+          isApproved: true,
+          isAvailable: true,
+        },
+
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+    },
+  });
+
+  if (!artist) {
+    throw new AppError("Artist not found", 404);
+  }
+
+  return artist;
+}
 }
 
 export default new ArtistService();

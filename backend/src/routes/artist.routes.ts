@@ -34,14 +34,14 @@ router.get(
   artistController.getStatus
 );
 
+router.get(
+  "/",
+  artistController.getApprovedArtists
+);
 
-
-
-
-
-
-
-
-
+router.get(
+  "/:id",
+  artistController.getArtistById
+);
 
 export default router;

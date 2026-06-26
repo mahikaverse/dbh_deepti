@@ -13,18 +13,27 @@ export function useArtistStatus() {
 
   const [loading, setLoading] = useState(true);
 
-  async function refresh() {
-    try {
-      const data = await getArtistStatus();
-      setArtistStatus(data);
-    } finally {
-      setLoading(false);
-    }
+async function refresh() {
+  try {
+    const data = await getArtistStatus();
+    setArtistStatus(data);
+  } catch (err) {
+    console.error(err);
+    setArtistStatus(null);
+  } finally {
+    setLoading(false);
+  }
+}
+useEffect(() => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    setLoading(false);
+    return;
   }
 
-  useEffect(() => {
-    refresh();
-  }, []);
+  refresh();
+}, []);
 
   return {
     artistStatus,

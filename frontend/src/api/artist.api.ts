@@ -37,3 +37,13 @@ export async function getArtistDashboard() {
   const res = await api.get("/api/artist/dashboard");
   return res.data.data;
 }
+
+export async function getArtists() {
+  const res = await api.get("/api/artist");
+  return res.data.data;
+}
+
+export async function getArtist(id: string) {
+  const res = await api.get(`/api/artist/${id}`);
+  return res.data.data;
+}

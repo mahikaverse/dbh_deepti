@@ -1,65 +1,59 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
 
 import AppHeader from "../components/layout/AppHeader";
 import Footer from "../components/layout/Footer";
 
-const featuredArtworks = [
-  {
-    id: 1,
-    title: "Ethereal Dreams",
-    artist: "Arjun Verma",
-    price: "₹18,500",
-    image:
-      "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800",
-  },
-  {
-    id: 2,
-    title: "Lotus Serenity",
-    artist: "Neha Kapoor",
-    price: "₹15,000",
-    image:
-      "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=800",
-  },
-  {
-    id: 3,
-    title: "The Thinker",
-    artist: "Rohan Das",
-    price: "₹32,000",
-    image:
-      "https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=800",
-  },
-  {
-    id: 4,
-    title: "Monsoon Streets",
-    artist: "Kavya Nair",
-    price: "₹20,000",
-    image:
-      "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800",
-  },
-];
+import { getExploreArtworks } from "../api/artwork.api";
 
-const collections = [
-  {
-    title: "Nature Collection",
-    image:
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200",
-  },
-  {
-    title: "Spiritual Collection",
-    image:
-      "https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=1200",
-  },
-  {
-    title: "Modern Collection",
-    image:
-      "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1200",
-  },
-];
 
 export default function HomePage() {
+  const [artworks, setArtworks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  loadArtworks();
+}, []);
+
+const loadArtworks = async () => {
+  try {
+    const data = await getExploreArtworks();
+
+    console.log(data);
+
+    setArtworks(data);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+if (loading) {
   return (
-    <div className="min-h-screen bg-[#FAF8F4]">
+    <div className="flex h-screen items-center justify-center">
+      Loading...
+    </div>
+  );
+}
+const collections = [
+  {
+    title: "Nature",
+    category: "NATURE",
+  },
+  {
+    title: "Spiritual",
+    category: "SPIRITUAL",
+  },
+  {
+    title: "Sketch",
+    category: "SKETCH",
+  },
+];
+
+return (
+  <div className="min-h-screen bg-[#FAF8F4]">
 
       <AppHeader />
 
@@ -123,114 +117,147 @@ export default function HomePage() {
         </div>
 
       </section>
+      
 
       {/* FEATURED ARTWORKS */}
 
-      <section className="max-w-7xl mx-auto px-6 py-16">
+<section className="max-w-7xl mx-auto px-6 py-16">
 
-        <div className="flex justify-between items-center mb-8">
+  <div className="mb-8 flex items-center justify-between">
 
-          <h2 className="text-3xl font-serif font-semibold">
-            Featured Artworks
-          </h2>
+    <h2 className="text-3xl font-serif font-semibold">
+      Featured Artworks
+    </h2>
 
-          <Link
-            to="/explore"
-            className="text-neutral-500"
-          >
-            View All →
-          </Link>
+    <Link
+      to="/explore"
+      className="text-neutral-500 hover:text-[#D6A354]"
+    >
+      View All →
+    </Link>
 
-        </div>
+  </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
 
-          {featuredArtworks.map((art) => (
-            <Link
-              key={art.id}
-              to={`/artwork/${art.id}`}
+    {artworks.slice(0, 4).map((art) => (
+
+      <div
+  key={art.id}
+  className="cursor-pointer"
+  onClick={() => window.location.href = `/artwork/${art.id}`}
+>
+
+        <div className="overflow-hidden rounded-3xl bg-white shadow-sm transition hover:shadow-xl">
+
+          <div className="relative">
+
+            <img
+              src={art.imageUrl}
+              alt={art.title}
+              className="h-72 w-full object-cover"
+            />
+
+            <button
+              className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow"
             >
-              <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition">
+              <Heart size={18} />
+            </button>
 
-                <div className="relative">
+          </div>
 
-                  <img
-                    src={art.image}
-                    alt={art.title}
-                    className="h-72 w-full object-cover"
-                  />
+          <div className="p-5">
 
-                  <button className="absolute top-4 right-4 bg-white rounded-full w-10 h-10 flex items-center justify-center shadow">
+            <h3 className="font-semibold">
+              {art.title}
+            </h3>
 
-                    <Heart size={18} />
-
-                  </button>
-
-                </div>
-
-                <div className="p-5">
-
-                  <h3 className="font-semibold">
-                    {art.title}
-                  </h3>
-
-                  <Link
-                        to="/artist/1"
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-sm text-[#D6A354] hover:underline"
-                        >
-                        by {art.artist}
-                    </Link>
-
-                  <p className="mt-3 font-semibold">
-                    {art.price}
-                  </p>
-
-                </div>
-
-              </div>
+            <Link
+              to={`/artist/${art.artist.id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="text-sm text-[#D6A354] hover:underline"
+            >
+              by {art.artist.name}
             </Link>
-          ))}
+
+            <p className="mt-3 font-semibold">
+              ₹{Number(art.price).toLocaleString("en-IN")}
+            </p>
+
+          </div>
 
         </div>
 
-      </section>
+      </div>
+
+    ))}
+
+  </div>
+
+</section>
 
       {/* COLLECTIONS */}
 
-      <section className="max-w-7xl mx-auto px-6 py-16">
+<section className="max-w-7xl mx-auto px-6 py-16">
 
-        <h2 className="text-3xl font-serif font-semibold mb-8">
-          Curated Collections
-        </h2>
+  <h2 className="mb-8 text-3xl font-serif font-semibold">
+    Curated Collections
+  </h2>
 
-        <div className="grid lg:grid-cols-3 gap-6">
+  <div className="grid gap-6 lg:grid-cols-3">
 
-          {collections.map((collection) => (
-            <div
-              key={collection.title}
-              className="relative overflow-hidden rounded-3xl"
-            >
-              <img
-                src={collection.image}
-                alt={collection.title}
-                className="h-72 w-full object-cover"
-              />
+    {collections.map((collection) => {
 
-              <div className="absolute inset-0 bg-black/30 flex items-end p-6">
+      const artwork = artworks.find(
+        (art: any) =>
+          art.category === collection.category
+      );
 
-                <h3 className="text-white text-2xl font-serif">
+      return (
+
+        <Link
+          key={collection.category}
+          to={`/explore?category=${collection.category}`}
+        >
+
+          <div className="group relative overflow-hidden rounded-3xl">
+
+            <img
+              src={
+                artwork?.imageUrl ||
+                "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200"
+              }
+              alt={collection.title}
+              className="h-72 w-full object-cover transition duration-500 group-hover:scale-105"
+            />
+
+            <div className="absolute inset-0 flex items-end bg-black/30 p-6">
+
+              <div>
+
+                <h3 className="font-serif text-2xl text-white">
                   {collection.title}
                 </h3>
+
+                <p className="mt-1 text-sm text-white/80">
+                  Explore Collection →
+                </p>
 
               </div>
 
             </div>
-          ))}
 
-        </div>
+          </div>
 
-      </section>
+        </Link>
+
+      );
+
+    })}
+
+  </div>
+
+</section>
 
       {/* WHY DEEPTI ART */}
 

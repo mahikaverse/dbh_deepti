@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import {
   CheckCircle,
   Heart,
@@ -9,58 +10,7 @@ import AppHeader from "../components/layout/AppHeader";
 import Footer from "../components/layout/Footer";
 import ArtworkCard from "../components/artwork/ArtworkCard";
 
-const artist = {
-  id: 1,
-  name: "Priya Sharma",
-  role: "Contemporary & Spiritual Artist",
-  followers: "1.2k",
-  artworks: 32,
-  collections: 8,
-
-  avatar:
-    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600",
-
-  banner:
-    "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=1600",
-
-  bio:
-    "Priya Sharma is a contemporary Indian artist known for blending spirituality, nature and modern artistic expression. Her work focuses on emotions, mindfulness and storytelling through colors and textures.",
-};
-
-const artworks = [
-  {
-    id: 1,
-    title: "Sunset Over Silence",
-    artist: "Priya Sharma",
-    price: "₹24,000",
-    image:
-      "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=600",
-  },
-  {
-    id: 2,
-    title: "Lotus Serenity",
-    artist: "Priya Sharma",
-    price: "₹18,000",
-    image:
-      "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=600",
-  },
-  {
-    id: 3,
-    title: "Golden Horizon",
-    artist: "Priya Sharma",
-    price: "₹28,000",
-    image:
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600",
-  },
-  {
-    id: 4,
-    title: "Nature Calm",
-    artist: "Priya Sharma",
-    price: "₹22,000",
-    image:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600",
-  },
-];
+import { getArtist } from "../api/artist.api";
 
 const collections = [
   {
@@ -78,6 +28,45 @@ const collections = [
 ];
 
 export default function ArtistProfilePage() {
+  const { id } = useParams();
+
+const [artist, setArtist] = useState<any>(null);
+
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  loadArtist();
+}, [id]);
+
+const loadArtist = async () => {
+  try {
+    const data = await getArtist(id!);
+
+    console.log(data);
+
+    setArtist(data);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+if (loading) {
+  return (
+    <div className="flex h-screen items-center justify-center">
+      Loading Artist...
+    </div>
+  );
+}
+
+if (!artist) {
+  return (
+    <div className="flex h-screen items-center justify-center">
+      Artist not found.
+    </div>
+  );
+}
   return (
     <div className="min-h-screen bg-[#FAF8F4]">
       <AppHeader />
@@ -89,8 +78,7 @@ export default function ArtistProfilePage() {
         <div className="relative h-[220px] overflow-hidden">
 
           <img
-            src={artist.banner}
-            alt=""
+           src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1600"            alt=""
             className="h-full w-full object-cover"
           />
 
@@ -111,8 +99,12 @@ export default function ArtistProfilePage() {
                 <div className="flex items-center gap-6">
 
                   <img
-                    src={artist.avatar}
-                    alt=""
+                 src={
+  artist.artistProfile?.profileImage ||
+  `https://ui-avatars.com/api/?name=${encodeURIComponent(
+    artist.name
+  )}`
+}                    alt=""
                     className="h-36 w-36 rounded-full border-4 border-white object-cover shadow-lg"
                   />
 
@@ -132,8 +124,7 @@ export default function ArtistProfilePage() {
                     </div>
 
                     <p className="mt-2 text-gray-500">
-                      {artist.role}
-                    </p>
+                     {artist.artistProfile?.bio || "Artist"}                    </p>
 
                   </div>
 
@@ -159,17 +150,17 @@ export default function ArtistProfilePage() {
               <div className="grid md:grid-cols-3 gap-5 mt-10">
 
                 <StatCard
-                  value={artist.artworks}
+                 value={artist.artworks.length}
                   label="Artworks"
                 />
 
                 <StatCard
-                  value={artist.followers}
+                 value="Coming Soon"
                   label="Followers"
                 />
 
                 <StatCard
-                  value={artist.collections}
+                  value={collections.length}
                   label="Collections"
                 />
 
@@ -192,8 +183,8 @@ export default function ArtistProfilePage() {
             </h2>
 
             <p className="text-gray-600 leading-8 max-w-4xl">
-              {artist.bio}
-            </p>
+            {artist.artistProfile?.bio ||
+  "No bio added yet."}            </p>
 
           </div>
 
@@ -220,16 +211,29 @@ export default function ArtistProfilePage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-            {artworks.map((artwork) => (
-              <ArtworkCard
-                key={artwork.id}
-                id={artwork.id}
-                image={artwork.image}
-                title={artwork.title}
-                artist={artwork.artist}
-                price={artwork.price}
-              />
-            ))}
+            {artist.artworks.map((artwork: any) => (
+
+  <ArtworkCard
+    key={artwork.id}
+    id={artwork.id}
+    image={artwork.imageUrl}
+    title={artwork.title}
+    artist={artist.name}
+    price={Number(artwork.price)}
+  />
+
+))}
+{artist.artworks.length === 0 && (
+  <div className="col-span-full rounded-3xl border border-[#ECE6DB] bg-white p-12 text-center">
+    <h3 className="text-2xl font-semibold">
+      No Artworks Yet
+    </h3>
+
+    <p className="mt-2 text-gray-500">
+      This artist hasn't published any approved artwork yet.
+    </p>
+  </div>
+)}
 
           </div>
 

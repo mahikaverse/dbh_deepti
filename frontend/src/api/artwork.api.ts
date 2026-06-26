@@ -45,3 +45,8 @@ export const deleteArtwork = async (
 
   return res.data.data;
 };
+
+export const getExploreArtworks = async () => {
+  const res = await api.get("/api/artworks/explore");
+  return res.data.data;
+};

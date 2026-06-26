@@ -2,11 +2,11 @@ import { Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 
 type ArtworkCardProps = {
-  id: number;
+  id: string;
   image: string;
   title: string;
   artist: string;
-  price: string;
+  price: number;
 };
 
 export default function ArtworkCard({
@@ -48,9 +48,8 @@ export default function ArtworkCard({
           </p>
 
           <p className="mt-1 font-semibold text-[#1B1B1B]">
-            {price}
+                   ₹{Number(price).toLocaleString("en-IN")}
           </p>
-
         </div>
 
       </div>

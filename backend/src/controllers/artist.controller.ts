@@ -96,8 +96,50 @@ async getDashboard(req: Request, res: Response) {
     });
   }
 }
- 
+ // ===========================
+// Get Approved Artists
+// ===========================
 
+async getApprovedArtists(req: Request, res: Response) {
+  try {
+    const artists =
+      await artistService.getApprovedArtists();
+
+    return res.status(200).json({
+      success: true,
+      data: artists,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+// ===========================
+// Get Artist By Id
+// ===========================
+
+async getArtistById(req: Request, res: Response) {
+  try {
+    const id = Array.isArray(req.params.id)
+      ? req.params.id[0]
+      : req.params.id;
+
+    const artist =
+      await artistService.getArtistById(id);
+
+    return res.status(200).json({
+      success: true,
+      data: artist,
+    });
+  } catch (error: any) {
+    return res.status(404).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
 }
 
 export default new ArtistController();
