@@ -59,14 +59,24 @@ class InquiryService {
           email: true,
         },
       },
+
       artwork: {
         select: {
           id: true,
           title: true,
           imageUrl: true,
+
+          artist: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
         },
       },
     },
+
     orderBy: {
       createdAt: "desc",
     },

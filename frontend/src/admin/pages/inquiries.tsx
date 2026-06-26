@@ -1,40 +1,53 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
 import AdminLayout from "../layout/AdminLayout";
 
-const inquiries = [
-  {
-    id: "INQ001",
-    user: "Mahika",
-    artwork: "Sunset Over Silence",
-    artist: "Priya Sharma",
-    status: "Pending",
-  },
-  {
-    id: "INQ002",
-    user: "Rohan",
-    artwork: "Lotus Serenity",
-    artist: "Kavya Nair",
-    status: "Approved",
-  },
-  {
-    id: "INQ003",
-    user: "Aditi",
-    artwork: "Golden Horizon",
-    artist: "Arjun Verma",
-    status: "Contacted",
-  },
-];
+import {
+  getInquiries,
+} from "../../api/admin.api";
+
 
 export default function AdminInquiries() {
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [inquiries, setInquiries] = useState<any[]>([]);
 
+  const [loading, setLoading] = useState(true);
+
+  const [statusFilter, setStatusFilter] =
+  useState("all");
+  
   const filteredInquiries =
-    statusFilter === "all"
-      ? inquiries
-      : inquiries.filter(
-          (item) => item.status === statusFilter
-        );
+  statusFilter === "all"
+    ? inquiries
+    : inquiries.filter(
+        (item) =>
+          item.status === statusFilter
+      );
+  useEffect(() => {
+  loadInquiries();
+}, []);
 
+const loadInquiries = async () => {
+  try {
+    const data = await getInquiries();
+
+    setInquiries(data);
+    console.log(data);
+    console.log(JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+if (loading) {
+  return (
+    <AdminLayout>
+      <div className="flex h-[60vh] items-center justify-center text-lg font-medium">
+        Loading Inquiries...
+      </div>
+    </AdminLayout>
+  );
+}
   return (
     <AdminLayout>
       {/* Header */}
@@ -57,16 +70,35 @@ export default function AdminInquiries() {
           }
           className="h-12 rounded-xl border border-[#ECE6DB] bg-white px-4 outline-none"
         >
-          <option value="all">All Status</option>
-          <option value="Pending">Pending</option>
-          <option value="Approved">Approved</option>
-          <option value="Rejected">Rejected</option>
-          <option value="Contacted">Contacted</option>
+          <option value="all">
+All Status
+</option>
+
+<option value="NEW">
+New
+</option>
+
+<option value="CONTACTED">
+Contacted
+</option>
+
+<option value="CONFIRMED">
+Confirmed
+</option>
+
+<option value="COMPLETED">
+Completed
+</option>
+
+<option value="CANCELLED">
+Cancelled
+</option>
         </select>
       </div>
 
       {/* Table */}
-      <div className="mt-8 overflow-hidden rounded-[28px] border border-[#ECE6DB] bg-white">
+        <div className="mt-8 overflow-hidden rounded-[28px] border border-[#ECE6DB] bg-white">
+          <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-[#FAF8F4]">
             <tr>
@@ -85,34 +117,38 @@ export default function AdminInquiries() {
                 key={item.id}
                 className="border-t border-[#ECE6DB]"
               >
-                <td className="p-5">{item.id}</td>
-                <td className="p-5">{item.user}</td>
-                <td className="p-5">{item.artwork}</td>
-                <td className="p-5">{item.artist}</td>
+                <td className="p-5 font-mono">
+                     {item.id.slice(0, 10)}...
+                </td>                
+                <td className="p-5">{item.user?.name ?? "-"}</td>
+                <td className="p-5">{item.artwork?.title ?? "-"}</td>
+                <td className="p-5">{item.artwork?.artist?.name ?? "-"}</td>
 
                 <td className="p-5">
-                  <span
-                    className={`rounded-full px-4 py-2 text-sm ${
-                      item.status === "Pending"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : item.status === "Approved"
-                        ? "bg-green-100 text-green-700"
-                        : item.status === "Contacted"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {item.status}
-                  </span>
+                 <span
+  className={`whitespace-nowrap rounded-full px-4 py-2 text-sm ${
+      item.status === "NEW"
+      ? "bg-yellow-100 text-yellow-700"
+      : item.status === "CONTACTED"
+      ? "bg-blue-100 text-blue-700"
+      : item.status === "CONFIRMED"
+      ? "bg-green-100 text-green-700"
+      : item.status === "COMPLETED"
+      ? "bg-purple-100 text-purple-700"
+      : "bg-red-100 text-red-700"
+  }`}
+>
+  {item.status}
+</span>
                 </td>
 
                 <td className="p-5">
                   <div className="flex gap-2">
-                    <button className="rounded-xl bg-green-500 px-4 py-2 text-white hover:bg-green-600">
+                    <button className="whitespace-nowrap rounded-xl bg-green-500 px-4 py-2 text-sm text-white hover:bg-green-600">
                       Approve
                     </button>
 
-                    <button className="rounded-xl bg-red-500 px-4 py-2 text-white hover:bg-red-600">
+                    <button className="whitespace-nowrap rounded-xl bg-red-500 px-4 py-2 text-sm text-white hover:bg-red-600">
                       Reject
                     </button>
                   </div>
@@ -130,9 +166,10 @@ export default function AdminInquiries() {
                 </td>
               </tr>
             )}
-          </tbody>
+                    </tbody>
         </table>
       </div>
+    </div>
     </AdminLayout>
   );
 }

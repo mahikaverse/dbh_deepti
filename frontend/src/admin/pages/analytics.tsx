@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { getDashboard } from "../../api/admin.api";
 import AdminLayout from "../layout/AdminLayout";
 import StatCard from "../components/StatCard";
 
@@ -25,19 +27,6 @@ const growthData = [
   { month: "Jun", users: 1248, artists: 186 },
 ];
 
-const inquiryData = [
-  { name: "Pending", value: 120 },
-  { name: "Approved", value: 280 },
-  { name: "Contacted", value: 72 },
-];
-
-const categoryData = [
-  { name: "Nature", value: 35 },
-  { name: "Spiritual", value: 25 },
-  { name: "Sketches", value: 20 },
-  { name: "Heritage", value: 20 },
-];
-
 const COLORS = [
   "#D6A354",
   "#08233F",
@@ -46,223 +35,362 @@ const COLORS = [
 ];
 
 export default function AdminAnalytics() {
+  const [analytics, setAnalytics] = useState<any>(null);
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadAnalytics();
+  }, []);
+
+  const loadAnalytics = async () => {
+    try {
+      const data = await getDashboard();
+
+      console.log(data);
+
+      setAnalytics(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const inquiryData = analytics
+    ? [
+        {
+          name: "New",
+          value: analytics.inquiries.newInquiries,
+        },
+        {
+          name: "Contacted",
+          value: analytics.inquiries.contactedInquiries,
+        },
+        {
+          name: "Confirmed",
+          value: analytics.inquiries.confirmedInquiries,
+        },
+        {
+          name: "Completed",
+          value: analytics.inquiries.completedInquiries,
+        },
+        {
+          name: "Cancelled",
+          value: analytics.inquiries.cancelledInquiries,
+        },
+      ]
+    : [];
+
+  const categoryData = analytics
+    ? [
+        {
+          name: "Approved",
+          value: analytics.artworks.approvedArtworks,
+        },
+        {
+          name: "Pending",
+          value: analytics.artworks.pendingArtworks,
+        },
+        {
+          name: "Sold",
+          value: analytics.artworks.soldArtworks,
+        },
+      ]
+    : [];
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex h-[60vh] items-center justify-center text-lg font-medium">
+          Loading Analytics...
+        </div>
+      </AdminLayout>
+    );
+  }
   return (
-    <AdminLayout>
-      {/* Header */}
+  <AdminLayout>
 
-      <div>
-        <h1 className="font-serif text-4xl">
-          Analytics
-        </h1>
+    {/* Header */}
 
-        <p className="mt-2 text-gray-500">
-          Monitor platform growth, user activity and performance.
+    <div>
+      <h1 className="font-serif text-4xl">
+        Analytics
+      </h1>
+
+      <p className="mt-2 text-gray-500">
+        Monitor platform growth, user activity and performance.
+      </p>
+    </div>
+
+    {/* KPI Cards */}
+
+    <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+
+      <StatCard
+        title="Total Users"
+        value={analytics.users.totalUsers}
+        growth=""
+      />
+
+      <StatCard
+        title="Artists"
+        value={analytics.users.totalArtists}
+        growth=""
+      />
+
+      <StatCard
+        title="Artworks"
+        value={analytics.artworks.totalArtworks}
+        growth=""
+      />
+
+      <StatCard
+        title="Inquiries"
+        value={analytics.inquiries.totalInquiries}
+        growth=""
+      />
+
+    </div>
+
+    {/* Charts */}
+
+    <div className="mt-10 grid gap-6 lg:grid-cols-2">
+
+      {/* Growth */}
+
+      <div className="rounded-[28px] border border-[#ECE6DB] bg-white p-6">
+
+        <h3 className="text-xl font-semibold">
+          Platform Growth
+        </h3>
+
+        <p className="mt-1 text-sm text-gray-500">
+          Users and artists growth over time.
         </p>
+
+        <div className="mt-6 h-[320px]">
+
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+          >
+
+            <LineChart data={growthData}>
+
+              <CartesianGrid strokeDasharray="3 3" />
+
+              <XAxis dataKey="month" />
+
+              <YAxis />
+
+              <Tooltip />
+
+              <Line
+                type="monotone"
+                dataKey="users"
+                stroke="#D6A354"
+                strokeWidth={3}
+              />
+
+              <Line
+                type="monotone"
+                dataKey="artists"
+                stroke="#08233F"
+                strokeWidth={3}
+              />
+
+            </LineChart>
+
+          </ResponsiveContainer>
+
+        </div>
+
       </div>
 
-      {/* KPI Cards */}
+      {/* Inquiry Chart */}
 
-      <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          title="Users Growth"
-          value="+18%"
-          growth="This Month"
-        />
+      <div className="rounded-[28px] border border-[#ECE6DB] bg-white p-6">
 
-        <StatCard
-          title="Artists Growth"
-          value="+11%"
-          growth="This Month"
-        />
+        <h3 className="text-xl font-semibold">
+          Inquiry Analytics
+        </h3>
 
-        <StatCard
-          title="Artwork Uploads"
-          value="348"
-          growth="+24%"
-        />
+        <p className="mt-1 text-sm text-gray-500">
+          Inquiry status overview.
+        </p>
 
-        <StatCard
-          title="Inquiry Conversion"
-          value="62%"
-          growth="+8%"
-        />
+        <div className="mt-6 h-[320px]">
+
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+          >
+
+            <BarChart data={inquiryData}>
+
+              <CartesianGrid strokeDasharray="3 3" />
+
+              <XAxis dataKey="name" />
+
+              <YAxis />
+
+              <Tooltip />
+
+              <Bar
+                dataKey="value"
+                fill="#D6A354"
+                radius={[8, 8, 0, 0]}
+              />
+
+            </BarChart>
+
+          </ResponsiveContainer>
+
+        </div>
+
       </div>
 
-      {/* Charts */}
+    </div>
 
-      <div className="mt-10 grid gap-6 lg:grid-cols-2">
-        {/* Growth */}
+    {/* Bottom Section */}
+    <div className="mt-6 grid gap-6 lg:grid-cols-3">
 
-        <div className="rounded-[28px] border border-[#ECE6DB] bg-white p-6">
-          <h3 className="text-xl font-semibold">
-            Platform Growth
-          </h3>
+  {/* Recent Artists */}
 
-          <p className="mt-1 text-sm text-gray-500">
-            Users and artists growth over time.
-          </p>
+  <div className="rounded-[28px] border border-[#ECE6DB] bg-white p-6">
 
-          <div className="mt-6 h-[320px]">
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-              <LineChart data={growthData}>
-                <CartesianGrid strokeDasharray="3 3" />
+    <h3 className="text-xl font-semibold">
+      Recent Artists
+    </h3>
 
-                <XAxis dataKey="month" />
+    <div className="mt-5 space-y-4">
 
-                <YAxis />
+      {analytics.recentArtists.map((artist: any) => (
 
-                <Tooltip />
+        <div
+          key={artist.id}
+          className="flex items-center justify-between"
+        >
 
-                <Line
-                  type="monotone"
-                  dataKey="users"
-                  stroke="#D6A354"
-                  strokeWidth={3}
-                />
+          <div>
 
-                <Line
-                  type="monotone"
-                  dataKey="artists"
-                  stroke="#08233F"
-                  strokeWidth={3}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Inquiry */}
-
-        <div className="rounded-[28px] border border-[#ECE6DB] bg-white p-6">
-          <h3 className="text-xl font-semibold">
-            Inquiry Analytics
-          </h3>
-
-          <p className="mt-1 text-sm text-gray-500">
-            Approval and response tracking.
-          </p>
-
-          <div className="mt-6 h-[320px]">
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-              <BarChart data={inquiryData}>
-                <CartesianGrid strokeDasharray="3 3" />
-
-                <XAxis dataKey="name" />
-
-                <YAxis />
-
-                <Tooltip />
-
-                <Bar
-                  dataKey="value"
-                  fill="#D6A354"
-                  radius={[8, 8, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Section */}
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        {/* Top Artists */}
-
-        <div className="rounded-[28px] border border-[#ECE6DB] bg-white p-6">
-          <h3 className="text-xl font-semibold">
-            Top Artists
-          </h3>
-
-          <div className="mt-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <span>Priya Sharma</span>
-              <span className="font-medium">
-                128 Sales
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span>Arjun Verma</span>
-              <span className="font-medium">
-                94 Sales
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span>Kavya Nair</span>
-              <span className="font-medium">
-                81 Sales
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Categories */}
-
-        <div className="rounded-[28px] border border-[#ECE6DB] bg-white p-6">
-          <h3 className="text-xl font-semibold">
-            Categories
-          </h3>
-
-          <div className="mt-4 h-[220px]">
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-              <PieChart>
-                <Pie
-                  data={categoryData}
-                  dataKey="value"
-                  outerRadius={80}
-                >
-                  {categoryData.map((_, index) => (
-                    <Cell
-                      key={index}
-                      fill={COLORS[index]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Revenue */}
-
-        <div className="rounded-[28px] border border-[#ECE6DB] bg-white p-6">
-          <h3 className="text-xl font-semibold">
-            Revenue Overview
-          </h3>
-
-          <div className="mt-5">
-            <p className="text-4xl font-bold">
-              ₹2.4L
+            <p className="font-medium">
+              {artist.user.name}
             </p>
 
-            <p className="mt-2 text-green-600">
-              +14% from last month
+            <p className="text-sm text-gray-500">
+              {artist.user.email}
             </p>
 
-            <div className="mt-6 rounded-2xl bg-[#FAF8F4] p-4">
-              <p className="text-sm text-gray-500">
-                Avg Order Value
-              </p>
-
-              <p className="mt-1 text-2xl font-semibold">
-                ₹3,250
-              </p>
-            </div>
           </div>
+
+          <span className="rounded-full bg-green-100 px-3 py-1 text-xs text-green-700">
+            {artist.status}
+          </span>
+
         </div>
+
+      ))}
+
+    </div>
+
+  </div>
+
+  {/* Artwork Status */}
+
+  <div className="rounded-[28px] border border-[#ECE6DB] bg-white p-6">
+
+    <h3 className="text-xl font-semibold">
+      Artwork Status
+    </h3>
+
+    <div className="mt-4 h-[220px]">
+
+      <ResponsiveContainer
+        width="100%"
+        height="100%"
+      >
+
+        <PieChart>
+
+          <Pie
+            data={categoryData}
+            dataKey="value"
+            outerRadius={80}
+          >
+
+            {categoryData.map((_: any, index: number) => (
+
+              <Cell
+                key={index}
+                fill={COLORS[index % COLORS.length]}
+              />
+
+            ))}
+
+          </Pie>
+
+          <Tooltip />
+
+        </PieChart>
+
+      </ResponsiveContainer>
+
+    </div>
+
+  </div>
+    {/* Platform Summary */}
+
+  <div className="rounded-[28px] border border-[#ECE6DB] bg-white p-6">
+
+    <h3 className="text-xl font-semibold">
+      Platform Summary
+    </h3>
+
+    <div className="mt-5 space-y-4">
+
+      <div className="flex justify-between">
+        <span>Total Admins</span>
+        <span className="font-semibold">
+          {analytics.users.totalAdmins}
+        </span>
       </div>
-    </AdminLayout>
-  );
+
+      <div className="flex justify-between">
+        <span>Approved Artworks</span>
+        <span className="font-semibold">
+          {analytics.artworks.approvedArtworks}
+        </span>
+      </div>
+
+      <div className="flex justify-between">
+        <span>Pending Artworks</span>
+        <span className="font-semibold">
+          {analytics.artworks.pendingArtworks}
+        </span>
+      </div>
+
+      <div className="flex justify-between">
+        <span>Sold Artworks</span>
+        <span className="font-semibold">
+          {analytics.artworks.soldArtworks}
+        </span>
+      </div>
+
+      <div className="flex justify-between">
+        <span>Total Inquiries</span>
+        <span className="font-semibold">
+          {analytics.inquiries.totalInquiries}
+        </span>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+</AdminLayout>
+);
 }

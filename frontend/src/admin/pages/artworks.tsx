@@ -1,67 +1,82 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AdminLayout from "../layout/AdminLayout";
+import {
+  getAllArtworks,approveArtwork,
+  rejectArtwork,
+} from "../../api/admin.api";
 
-const artworks = [
-  {
-    id: "ART001",
-    title: "Sunset Over Silence",
-    artist: "Priya Sharma",
-    status: "Published",
-  },
-  {
-    id: "ART002",
-    title: "Golden Horizon",
-    artist: "Arjun Verma",
-    status: "Featured",
-  },
-  {
-    id: "ART003",
-    title: "Lotus Serenity",
-    artist: "Kavya Nair",
-    status: "Pending",
-  },
-];
 
 export default function AdminArtworks() {
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [artworks, setArtworks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] =
+  useState("all");
 
   const filteredArtworks =
-    statusFilter === "all"
-      ? artworks
-      : artworks.filter(
-          (artwork) => artwork.status === statusFilter
-        );
+  statusFilter === "all"
+    ? artworks
+    : artworks.filter((artwork) =>
+        statusFilter === "APPROVED"
+          ? artwork.isApproved
+          : !artwork.isApproved
+      );
+  useEffect(() => {
+  loadArtworks();
+}, []);
 
+const loadArtworks = async () => {
+  try {
+    const data = await getAllArtworks();
+
+    console.log(data);
+
+    setArtworks(data);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+if (loading) {
   return (
     <AdminLayout>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-serif text-4xl">
-            Artwork Moderation
-          </h1>
+      <div className="flex h-[60vh] items-center justify-center text-lg font-medium">
+        Loading Artworks...
+      </div>
+    </AdminLayout>
+  );
+}
 
-          <p className="mt-2 text-gray-500">
-            Manage, feature and moderate artworks.
-          </p>
-        </div>
+  return (
+  <AdminLayout>
+    {/* Header */}
+    <div className="flex items-center justify-between">
+      <div>
+        <h1 className="font-serif text-4xl">
+          Artwork Moderation
+        </h1>
 
-        <select
-          value={statusFilter}
-          onChange={(e) =>
-            setStatusFilter(e.target.value)
-          }
-          className="h-12 rounded-xl border border-[#ECE6DB] bg-white px-4 outline-none"
-        >
-          <option value="all">All Status</option>
-          <option value="Published">Published</option>
-          <option value="Featured">Featured</option>
-          <option value="Pending">Pending</option>
-        </select>
+        <p className="mt-2 text-gray-500">
+          Manage, approve and moderate artworks.
+        </p>
       </div>
 
-      {/* Table */}
-      <div className="mt-8 overflow-hidden rounded-[28px] border border-[#ECE6DB] bg-white">
+      <select
+        value={statusFilter}
+        onChange={(e) =>
+          setStatusFilter(e.target.value)
+        }
+        className="h-12 rounded-xl border border-[#ECE6DB] bg-white px-4 outline-none"
+      >
+        <option value="all">All</option>
+        <option value="APPROVED">Approved</option>
+        <option value="PENDING">Pending</option>
+      </select>
+    </div>
+
+    {/* Table */}
+    <div className="mt-8 overflow-hidden rounded-[28px] border border-[#ECE6DB] bg-white">
+      <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-[#FAF8F4]">
             <tr>
@@ -81,7 +96,7 @@ export default function AdminArtworks() {
               >
                 <td className="p-5">
                   <img
-                    src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=400"
+                    src={artwork.imageUrl}
                     alt={artwork.title}
                     className="h-16 w-16 rounded-xl object-cover"
                   />
@@ -92,32 +107,70 @@ export default function AdminArtworks() {
                 </td>
 
                 <td className="p-5">
-                  {artwork.artist}
+                  {artwork.artist?.name ?? "-"}
                 </td>
 
                 <td className="p-5">
                   <span
                     className={`rounded-full px-4 py-2 text-sm ${
-                      artwork.status === "Featured"
-                        ? "bg-purple-100 text-purple-700"
-                        : artwork.status === "Published"
+                      artwork.isApproved
                         ? "bg-green-100 text-green-700"
                         : "bg-yellow-100 text-yellow-700"
                     }`}
                   >
-                    {artwork.status}
+                    {artwork.isApproved
+                      ? "APPROVED"
+                      : "PENDING"}
                   </span>
                 </td>
 
                 <td className="p-5">
                   <div className="flex gap-2">
-                    <button className="rounded-xl bg-[#D6A354] px-4 py-2 text-white hover:bg-[#C69649]">
-                      Feature
+
+                    <button
+                      disabled={artwork.isApproved}
+                      onClick={async () => {
+
+                        if (
+                          !confirm(
+                            "Approve this artwork?"
+                          )
+                        )
+                          return;
+
+                        await approveArtwork(
+                          artwork.id
+                        );
+
+                        await loadArtworks();
+                      }}
+                      className="rounded-xl bg-green-500 px-4 py-2 text-white hover:bg-green-600 disabled:cursor-not-allowed disabled:bg-gray-300"
+                    >
+                      Approve
                     </button>
 
-                    <button className="rounded-xl bg-red-500 px-4 py-2 text-white hover:bg-red-600">
-                      Remove
+                    <button
+                      disabled={!artwork.isApproved}
+                      onClick={async () => {
+
+                        if (
+                          !confirm(
+                            "Reject this artwork?"
+                          )
+                        )
+                          return;
+
+                        await rejectArtwork(
+                          artwork.id
+                        );
+
+                        await loadArtworks();
+                      }}
+                      className="rounded-xl bg-red-500 px-4 py-2 text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:bg-gray-300"
+                    >
+                      Reject
                     </button>
+
                   </div>
                 </td>
               </tr>
@@ -136,6 +189,7 @@ export default function AdminArtworks() {
           </tbody>
         </table>
       </div>
-    </AdminLayout>
-  );
+    </div>
+  </AdminLayout>
+);
 }
