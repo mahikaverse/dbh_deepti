@@ -1,8 +1,7 @@
 import {
   Brush,
-  Wallet,
-  Eye,
-  Heart,
+  CheckCircle,
+  Clock,
   MessageCircle,
   TrendingUp,
   Upload,
@@ -11,126 +10,150 @@ import {
 } from "lucide-react";
 
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getArtistDashboard } from "../../api/artist.api";
 import ArtistLayout from "../layout/ArtistLayout";
 
-const stats = [
-  {
-    title: "Total Artworks",
-    value: "24",
-    icon: <Brush size={28} />,
-    color: "bg-blue-100",
-  },
-  {
-    title: "Total Views",
-    value: "18.5K",
-    icon: <Eye size={28} />,
-    color: "bg-green-100",
-  },
-  {
-    title: "Wishlist Saves",
-    value: "2,418",
-    icon: <Heart size={28} />,
-    color: "bg-red-100",
-  },
-  {
-    title: "Revenue",
-    value: "₹2.48L",
-    icon: <Wallet size={28} />,
-    color: "bg-yellow-100",
-  },
-];
-
-const recentActivity = [
-  {
-    title: "Golden Horizon received a new inquiry",
-    time: "2 hours ago",
-  },
-  {
-    title: "Urban Dreams was added to wishlist",
-    time: "5 hours ago",
-  },
-  {
-    title: "Abstract Vision approved by admin",
-    time: "Yesterday",
-  },
-  {
-    title: "Payment of ₹24,000 received",
-    time: "2 days ago",
-  },
-];
 
 export default function ArtistDashboard() {
+
+  const [dashboard, setDashboard] = useState<any>(null);
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadDashboard();
+  }, []);
+
+  const loadDashboard = async () => {
+    try {
+      const data = await getArtistDashboard();
+
+      console.log(data);
+
+      setDashboard(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <ArtistLayout>
+        <div className="flex h-[80vh] items-center justify-center text-xl">
+          Loading Dashboard...
+        </div>
+      </ArtistLayout>
+    );
+  }
   return (
-    <ArtistLayout>
-      <main className="min-w-0">
+  <ArtistLayout>
+    <main className="min-w-0">
 
-        {/* Header */}
+      {/* Header */}
 
-        <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between">
 
-          <div>
+        <div>
 
-            <h1 className="text-4xl font-serif font-bold">
-              Welcome back, Priya 👋
-            </h1>
+          <h1 className="text-4xl font-serif font-bold">
+            Welcome back, {dashboard.artist.name} 👋
+          </h1>
 
-            <p className="mt-2 text-gray-500">
-              Here's what's happening with your artworks today.
-            </p>
-
-          </div>
-
-          <Link
-            to="/artist/upload-artwork"
-            className="flex items-center gap-2 rounded-xl bg-[#D6A354] px-6 py-4 text-white hover:bg-[#C69649]"
-          >
-            <Upload size={20} />
-
-            Upload Artwork
-
-          </Link>
+          <p className="mt-2 text-gray-500">
+            Manage your artworks and buyer inquiries from one place.
+          </p>
 
         </div>
 
+        <Link
+          to="/artist/upload-artwork"
+          className="flex items-center gap-2 rounded-xl bg-[#D6A354] px-6 py-4 text-white hover:bg-[#C69649]"
+        >
+          <Upload size={20} />
+
+          Upload Artwork
+
+        </Link>
+
+      </div>
+
+      {/* Baaki dashboard code yahi continue hoga */}
+
+   
         {/* Stats */}
 
-        <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+<div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
 
-          {stats.map((item) => (
+  <div className="rounded-3xl border border-[#ECE6DB] bg-white p-6">
 
-            <div
-              key={item.title}
-              className="rounded-[30px] border border-[#ECE6DB] bg-white p-6 shadow-sm"
-            >
+    <div className="flex items-center justify-between">
+      <Brush className="h-8 w-8 text-[#D6A354]" />
+      <TrendingUp className="h-5 w-5 text-green-500" />
+    </div>
 
-              <div className="flex items-center justify-between">
+    <h3 className="mt-6 text-4xl font-bold">
+      {dashboard.stats.totalArtworks}
+    </h3>
 
-                <div>
+    <p className="mt-2 text-gray-500">
+      Total Artworks
+    </p>
 
-                  <p className="text-gray-500">
-                    {item.title}
-                  </p>
+  </div>
 
-                  <h2 className="mt-3 text-4xl font-bold">
-                    {item.value}
-                  </h2>
+  <div className="rounded-3xl border border-[#ECE6DB] bg-white p-6">
 
-                </div>
+    <div className="flex items-center justify-between">
+      <CheckCircle className="h-8 w-8 text-green-600" />
+      <TrendingUp className="h-5 w-5 text-green-500" />
+    </div>
 
-                <div
-                  className={`rounded-2xl p-4 ${item.color}`}
-                >
-                  {item.icon}
-                </div>
+    <h3 className="mt-6 text-4xl font-bold">
+      {dashboard.stats.approvedArtworks}
+    </h3>
 
-              </div>
+    <p className="mt-2 text-gray-500">
+      Approved Artworks
+    </p>
 
-            </div>
+  </div>
 
-          ))}
+  <div className="rounded-3xl border border-[#ECE6DB] bg-white p-6">
 
-        </div>
+    <div className="flex items-center justify-between">
+      <Clock className="h-8 w-8 text-orange-500" />
+    </div>
 
+    <h3 className="mt-6 text-4xl font-bold">
+      {dashboard.stats.pendingArtworks}
+    </h3>
+
+    <p className="mt-2 text-gray-500">
+      Pending Approval
+    </p>
+
+  </div>
+
+  <div className="rounded-3xl border border-[#ECE6DB] bg-white p-6">
+
+    <div className="flex items-center justify-between">
+      <MessageCircle className="h-8 w-8 text-blue-600" />
+    </div>
+
+    <h3 className="mt-6 text-4xl font-bold">
+      {dashboard.stats.totalInquiries}
+    </h3>
+
+    <p className="mt-2 text-gray-500">
+      Buyer Inquiries
+    </p>
+
+  </div>
+
+</div>
         {/* Quick Actions */}
 
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
@@ -316,277 +339,255 @@ export default function ArtistDashboard() {
 
         {/* Recent Activity */}
 
-        <div className="mt-10 rounded-[30px] border border-[#ECE6DB] bg-white p-8 shadow-sm">
+<div className="mt-10 rounded-[30px] border border-[#ECE6DB] bg-white p-8 shadow-sm">
 
-          <div className="flex items-center justify-between">
+  <div className="flex items-center justify-between">
 
-            <h2 className="text-2xl font-semibold">
-              Recent Activity
-            </h2>
+    <h2 className="text-2xl font-semibold">
+      Recent Activity
+    </h2>
 
-            <button className="flex items-center gap-2 text-[#D6A354]">
+  </div>
 
-              View All
+  <div className="mt-8 space-y-5">
 
-              <ArrowRight size={18} />
+    {dashboard.recentArtworks.length > 0 ? (
 
-            </button>
+      dashboard.recentArtworks.map((artwork: any) => (
 
-          </div>
+        <div
+          key={artwork.id}
+          className="flex items-center gap-5 rounded-2xl border border-[#ECE6DB] p-4"
+        >
 
-          <div className="mt-8 space-y-6">
+          <img
+            src={artwork.imageUrl}
+            alt={artwork.title}
+            className="h-16 w-16 rounded-xl object-cover"
+          />
 
-            {recentActivity.map((activity, index) => (
+          <div className="flex-1">
 
-              <div
-                key={index}
-                className="flex items-center gap-5"
-              >
+            <h3 className="font-semibold">
+              {artwork.title}
+            </h3>
 
-                <div className="h-4 w-4 rounded-full bg-[#D6A354]" />
-
-                <div className="flex-1">
-
-                  <h3 className="font-semibold">
-
-                    {activity.title}
-
-                  </h3>
-
-                  <p className="text-sm text-gray-500">
-
-                    {activity.time}
-
-                  </p>
-
-                </div>
-
-              </div>
-
-            ))}
+            <p className="text-sm text-gray-500">
+              {new Date(
+                artwork.createdAt
+              ).toLocaleDateString()}
+            </p>
 
           </div>
+
+          {artwork.isApproved ? (
+
+            <span className="rounded-full bg-green-100 px-3 py-1 text-sm text-green-700">
+              Approved
+            </span>
+
+          ) : (
+
+            <span className="rounded-full bg-yellow-100 px-3 py-1 text-sm text-yellow-700">
+              Pending
+            </span>
+
+          )}
 
         </div>
 
-        {/* Latest Uploads */}
+      ))
 
-        <div className="mt-10">
+    ) : (
 
-          <div className="mb-6 flex items-center justify-between">
+      <div className="rounded-2xl bg-[#FAF8F4] p-8 text-center">
 
-            <h2 className="text-2xl font-semibold">
-              Latest Uploaded Artworks
-            </h2>
-
-            <Link
-              to="/artist/my-artworks"
-              className="text-[#D6A354]"
-            >
-              View All
-            </Link>
-
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-
-            {[1, 2, 3, 4].map((item) => (
-
-              <div
-                key={item}
-                className="overflow-hidden rounded-[28px] border border-[#ECE6DB] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-              >
-
-                <img
-                  src={`https://picsum.photos/400/400?random=${item}`}
-                  className="h-56 w-full object-cover"
-                />
-
-                <div className="p-5">
-
-                  <h3 className="font-semibold">
-                    Artwork {item}
-                  </h3>
-
-                  <p className="mt-1 text-sm text-gray-500">
-                    Acrylic on Canvas
-                  </p>
-
-                  <div className="mt-4 flex justify-between">
-
-                    <span className="font-bold">
-                      ₹24,000
-                    </span>
-
-                    <span className="rounded-full bg-green-100 px-3 py-1 text-xs text-green-700">
-                      Published
-                    </span>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-            ))}
-
-          </div>
-
-        </div>
-
-                {/* Bottom Grid */}
-
-        <div className="mt-10 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-
-          {/* Notifications */}
-
-          <div className="rounded-[30px] border border-[#ECE6DB] bg-white p-8 shadow-sm">
-
-            <div className="flex items-center justify-between">
-
-              <h2 className="text-2xl font-semibold">
-                Notifications
-              </h2>
-
-              <button className="text-[#D6A354]">
-                View All
-              </button>
-
-            </div>
-
-            <div className="mt-8 space-y-5">
-
-              <NotificationCard
-                title="Your artwork 'Golden Horizon' received a new inquiry."
-                time="10 mins ago"
-                color="bg-green-500"
-              />
-
-              <NotificationCard
-                title="Admin approved 'Abstract Vision'."
-                time="2 hours ago"
-                color="bg-blue-500"
-              />
-
-              <NotificationCard
-                title="₹24,000 payment credited."
-                time="Yesterday"
-                color="bg-yellow-500"
-              />
-
-              <NotificationCard
-                title="You gained 15 new followers."
-                time="2 days ago"
-                color="bg-pink-500"
-              />
-
-            </div>
-
-          </div>
-
-          {/* Upcoming */}
-
-          <div className="space-y-6">
-
-            <div className="rounded-[30px] border border-[#ECE6DB] bg-white p-8 shadow-sm">
-
-              <h2 className="text-2xl font-semibold">
-                Upcoming Tasks
-              </h2>
-
-              <div className="mt-8 space-y-5">
-
-                <TaskCard
-                  title="Upload New Artwork"
-                />
-
-                <TaskCard
-                  title="Reply to 3 Buyer Inquiries"
-                />
-
-                <TaskCard
-                  title="Update Artist Profile"
-                />
-
-                <TaskCard
-                  title="Verify Bank Details"
-                />
-
-              </div>
-
-            </div>
-
-            {/* Tips */}
-
-            <div className="rounded-[30px] bg-[#D6A354] p-8 text-white shadow-sm">
-
-              <h2 className="text-2xl font-semibold">
-
-                Creator Tip 💡
-
-              </h2>
-
-              <p className="mt-5 leading-8 text-white/90">
-
-                Artists who upload at least
-                <strong> 3 artworks every week </strong>
-                receive nearly
-                <strong> 40% more inquiries </strong>
-                compared to inactive artists.
-
-              </p>
-
-              <button className="mt-8 rounded-xl bg-white px-5 py-3 font-semibold text-[#D6A354]">
-
-                Upload Artwork
-
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </main>
-    </ArtistLayout>
-  );
-}
-
-/* ---------------- COMPONENTS ---------------- */
-
-function NotificationCard({
-  title,
-  time,
-  color,
-}: {
-  title: string;
-  time: string;
-  color: string;
-}) {
-  return (
-    <div className="flex gap-4">
-
-      <div
-        className={`mt-2 h-3 w-3 rounded-full ${color}`}
-      />
-
-      <div>
-
-        <h3 className="font-medium">
-          {title}
+        <h3 className="text-xl font-semibold">
+          No Recent Activity
         </h3>
 
-        <p className="mt-1 text-sm text-gray-500">
-          {time}
+        <p className="mt-2 text-gray-500">
+          Upload your first artwork to see activity here.
         </p>
 
       </div>
 
-    </div>
-  );
-}
+    )}
 
+  </div>
+
+</div>
+{/* Latest Uploads */}
+
+<div className="mt-10">
+
+  <div className="mb-6 flex items-center justify-between">
+
+    <h2 className="text-2xl font-semibold">
+      Latest Uploaded Artworks
+    </h2>
+
+    <Link
+      to="/artist/my-artworks"
+      className="text-[#D6A354]"
+    >
+      View All
+    </Link>
+
+  </div>
+
+  {dashboard.recentArtworks.length > 0 ? (
+
+    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+
+      {dashboard.recentArtworks.map((artwork: any) => (
+
+        <div
+          key={artwork.id}
+          className="overflow-hidden rounded-3xl border border-[#ECE6DB] bg-white"
+        >
+
+          <img
+            src={artwork.imageUrl}
+            alt={artwork.title}
+            className="h-60 w-full object-cover"
+          />
+
+          <div className="p-5">
+
+            <h3 className="font-semibold">
+              {artwork.title}
+            </h3>
+
+            <p className="mt-2 text-sm text-gray-500">
+              {new Date(artwork.createdAt).toLocaleDateString()}
+            </p>
+
+            <div className="mt-4">
+
+              {artwork.isApproved ? (
+
+                <span className="rounded-full bg-green-100 px-3 py-1 text-sm text-green-700">
+                  Approved
+                </span>
+
+              ) : (
+
+                <span className="rounded-full bg-yellow-100 px-3 py-1 text-sm text-yellow-700">
+                  Pending
+                </span>
+
+              )}
+
+            </div>
+
+          </div>
+
+        </div>
+
+      ))}
+
+    </div>
+
+  ) : (
+
+    <div className="rounded-3xl border border-[#ECE6DB] bg-white p-10 text-center">
+
+      <h3 className="text-xl font-semibold">
+        No Artworks Yet
+      </h3>
+
+      <p className="mt-2 text-gray-500">
+        Upload your first artwork to get started.
+      </p>
+
+    </div>
+
+  )}
+
+</div>
+                {/* Bottom Grid */}
+
+<div className="mt-10 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+
+  {/* Notifications */}
+
+  <div className="rounded-[30px] border border-[#ECE6DB] bg-white p-8 shadow-sm">
+
+    <h2 className="text-2xl font-semibold">
+      Notifications
+    </h2>
+
+    <div className="mt-8 rounded-2xl bg-[#FAF8F4] p-10 text-center">
+
+      <h3 className="text-xl font-semibold">
+        Coming Soon
+      </h3>
+
+      <p className="mt-2 text-gray-500">
+        Notifications will appear here when buyers send inquiries or admins review your artworks.
+      </p>
+
+    </div>
+
+  </div>
+
+  {/* Right Side */}
+
+  <div className="space-y-6">
+
+    {/* Upcoming */}
+
+    <div className="rounded-[30px] border border-[#ECE6DB] bg-white p-8 shadow-sm">
+
+      <h2 className="text-2xl font-semibold">
+        Quick Tasks
+      </h2>
+
+      <div className="mt-8 space-y-4">
+
+        <TaskCard title="Upload New Artwork" />
+
+        <TaskCard title="Check Pending Artworks" />
+
+        <TaskCard title="Reply to Buyer Inquiries" />
+
+        <TaskCard title="Update Artist Profile" />
+
+      </div>
+
+    </div>
+
+    {/* Tips */}
+
+    <div className="rounded-[30px] bg-[#D6A354] p-8 text-white shadow-sm">
+
+      <h2 className="text-2xl font-semibold">
+        Creator Tip 💡
+      </h2>
+
+      <p className="mt-5 leading-8 text-white/90">
+
+        Artists with more approved artworks receive better visibility in Explore and Artist pages. Keep uploading quality artwork regularly.
+
+      </p>
+
+      <Link
+        to="/artist/upload-artwork"
+        className="mt-8 inline-block rounded-xl bg-white px-5 py-3 font-semibold text-[#D6A354]"
+      >
+        Upload Artwork
+      </Link>
+
+    </div>
+
+  </div>
+
+</div>
+</main>
+  </ArtistLayout>
+);
+}
 function TaskCard({
   title,
 }: {

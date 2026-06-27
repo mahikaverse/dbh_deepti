@@ -138,90 +138,48 @@ if (artwork.rejectionReason) {
   </div>
 )}
 
-        {/* ANALYTICS */}
+       {/* ANALYTICS */}
 
-        <div className="mt-6 grid grid-cols-3 gap-4 rounded-2xl bg-[#FAF8F4] p-4">
+<div className="mt-6 grid grid-cols-3 gap-4 rounded-2xl bg-[#FAF8F4] p-4">
 
-          <div className="text-center">
+  <div className="text-center">
+    <Eye size={18} className="mx-auto text-gray-500" />
 
-            <Eye
-              size={18}
-              className="mx-auto text-gray-500"
-            />
+    <p className="mt-2 font-semibold">0</p>
 
-            <p className="mt-2 font-semibold">
+    <p className="text-xs text-gray-500">
+      Views
+    </p>
+  </div>
 
-              0
+  <div className="text-center">
+    <Heart size={18} className="mx-auto text-red-500" />
 
-            </p>
+    <p className="mt-2 font-semibold">0</p>
 
-            <p className="text-xs text-gray-500">
+    <p className="text-xs text-gray-500">
+      Saves
+    </p>
+  </div>
 
-              Views
+  <div className="text-center">
+    <MessageCircle
+      size={18}
+      className="mx-auto text-blue-500"
+    />
 
-            </p>
+    <p className="mt-2 font-semibold">
+      {artwork.isApproved
+        ? artwork._count?.inquiries ?? 0
+        : "--"}
+    </p>
 
-          </div>
+    <p className="text-xs text-gray-500">
+      Inquiries
+    </p>
+  </div>
 
-          <div className="text-center">
-
-            <Heart
-              size={18}
-              className="mx-auto text-red-500"
-            />
-
-            <p className="mt-2 font-semibold">
-
-              0
-
-            </p>
-
-            <p className="text-xs text-gray-500">
-
-              Saves
-
-            </p>
-
-          </div>
-
-          <div className="text-center">
-
-            <MessageCircle
-              size={18}
-              className="mx-auto text-blue-500"
-            />
-
-            <p className="mt-2 font-semibold">
-
-              <div className="text-center">
-  <MessageCircle
-    size={18}
-    className="mx-auto text-blue-500"
-  />
-
-  <p className="mt-2 font-semibold">
-    {artwork.isApproved
-      ? artwork._count?.inquiries ?? 0
-      : "--"}
-  </p>
-
-  <p className="text-xs text-gray-500">
-    Inquiries
-  </p>
 </div>
-
-            </p>
-
-            <p className="text-xs text-gray-500">
-
-              Inquiries
-
-            </p>
-
-          </div>
-
-        </div>
-
                 {/* ACTION BUTTONS */}
 
         <div className="mt-6 grid grid-cols-3 gap-3">
@@ -299,6 +257,7 @@ if (artwork.rejectionReason) {
             </p>
 
             <p className="font-medium">
+
 
               {artwork.medium || "N/A"}
 
