@@ -1,13 +1,8 @@
 import prisma from "../config/prisma";
 import AppError from "../errors/AppError";
-import { CreateInquiryInput } from "../validators/inquiry.validator";
-import { InquiryStatus } from "@prisma/client";
 
 class InquiryService {
-  async createInquiry(
-    userId: string,
-    data: CreateInquiryInput
-  ) {
+  async create(userId: string, data: any) {
     const artwork = await prisma.artwork.findUnique({
       where: {
         id: data.artworkId,
@@ -18,61 +13,63 @@ class InquiryService {
       throw new AppError("Artwork not found", 404);
     }
 
-    return prisma.inquiry.create({
+    if (!artwork.isApproved) {
+      throw new AppError(
+        "Artwork is not approved yet.",
+        400
+      );
+    }
+
+    if (!artwork.isAvailable) {
+      throw new AppError(
+        "Artwork already sold.",
+        400
+      );
+    }
+
+    const inquiry = await prisma.inquiry.create({
       data: {
         userId,
+
         artworkId: data.artworkId,
-        preferredFrame: data.preferredFrame,
-        preferredSize: data.preferredSize,
+
+        preferredFrame:
+          data.preferredFrame,
+
+        preferredSize:
+          data.preferredSize,
+
         message: data.message,
       },
-    });
-  }
 
-  async getMyInquiries(userId: string) {
-    return prisma.inquiry.findMany({
-      where: {
-        userId,
-      },
       include: {
-        artwork: {
-          select: {
-            id: true,
-            title: true,
-            imageUrl: true,
-            price: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
+        artwork: true,
       },
     });
+
+    return inquiry;
   }
-  async getAllInquiries() {
+  async getMyInquiries(userId: string) {
   return prisma.inquiry.findMany({
+    where: {
+      userId,
+    },
+
     include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-        },
-      },
-
       artwork: {
-        select: {
-          id: true,
-          title: true,
-          imageUrl: true,
-
+        include: {
           artist: {
             select: {
               id: true,
               name: true,
-              email: true,
             },
           },
+        },
+      },
+
+      messages: {
+        orderBy: {
+          createdAt: "asc",
         },
       },
     },
@@ -82,20 +79,27 @@ class InquiryService {
     },
   });
 }
-async updateInquiryStatus(
-  id: string,
-  status: InquiryStatus
-) {
-  const inquiry = await prisma.inquiry.findUnique({
-    where: { id },
+async getAllInquiries() {
+  return prisma.inquiry.findMany({
+    include: {
+      artwork: true,
+      user: true,
+      messages: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
+}
 
-  if (!inquiry) {
-    throw new AppError("Inquiry not found", 404);
-  }
-
+async updateInquiryStatus(
+  inquiryId: string,
+  status: any
+) {
   return prisma.inquiry.update({
-    where: { id },
+    where: {
+      id: inquiryId,
+    },
     data: {
       status,
     },

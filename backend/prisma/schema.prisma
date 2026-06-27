@@ -103,16 +103,36 @@ model ArtistProfile {
 }
 
 model Inquiry {
-  id             String        @id @default(cuid())
+  id             String           @id @default(cuid())
   userId         String
   artworkId      String
   preferredFrame String?
   preferredSize  String?
   message        String?
-  status         InquiryStatus @default(NEW)
-  createdAt      DateTime      @default(now())
-  artwork        Artwork       @relation(fields: [artworkId], references: [id])
-  user           User          @relation(fields: [userId], references: [id])
+  status         InquiryStatus    @default(NEW)
+  createdAt      DateTime         @default(now())
+  artwork        Artwork          @relation(fields: [artworkId], references: [id])
+  user           User             @relation(fields: [userId], references: [id])
+  messages       InquiryMessage[]
+}
+
+model InquiryMessage {
+  id String @id @default(cuid())
+
+  inquiryId String
+
+  senderRole MessageSender
+
+  message String
+
+  createdAt DateTime @default(now())
+
+  inquiry Inquiry @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+}
+
+enum MessageSender {
+  USER
+  ADMIN
 }
 
 enum ArtworkCategory {
