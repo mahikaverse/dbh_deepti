@@ -50,3 +50,31 @@ export const getExploreArtworks = async () => {
   const res = await api.get("/api/artworks/explore");
   return res.data.data;
 };
+
+export const toggleLike = async (
+  artworkId: string
+) => {
+  const res = await api.post(
+    `/api/artworks/${artworkId}/like`
+  );
+
+  return res.data.data;
+};
+
+export const toggleWishlist = async (
+  artworkId: string
+) => {
+  const res = await api.post(
+    `/api/artworks/${artworkId}/wishlist`
+  );
+
+  return res.data.data;
+};
+
+export const getWishlist = async () => {
+  const res = await api.get(
+    "/api/artworks/wishlist/me"
+  );
+
+  return res.data.data;
+};

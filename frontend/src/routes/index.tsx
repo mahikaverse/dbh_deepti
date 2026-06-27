@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Heart } from "lucide-react";
-
+import ArtworkCard from "../components/artwork/ArtworkCard";
 import AppHeader from "../components/layout/AppHeader";
 import Footer from "../components/layout/Footer";
 
@@ -124,7 +123,6 @@ return (
 <section className="max-w-7xl mx-auto px-6 py-16">
 
   <div className="mb-8 flex items-center justify-between">
-
     <h2 className="text-3xl font-serif font-semibold">
       Featured Artworks
     </h2>
@@ -135,61 +133,21 @@ return (
     >
       View All →
     </Link>
-
   </div>
 
   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
 
-    {artworks.slice(0, 4).map((art) => (
-
-      <div
-  key={art.id}
-  className="cursor-pointer"
-  onClick={() => window.location.href = `/artwork/${art.id}`}
->
-
-        <div className="overflow-hidden rounded-3xl bg-white shadow-sm transition hover:shadow-xl">
-
-          <div className="relative">
-
-            <img
-              src={art.imageUrl}
-              alt={art.title}
-              className="h-72 w-full object-cover"
-            />
-
-            <button
-              className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow"
-            >
-              <Heart size={18} />
-            </button>
-
-          </div>
-
-          <div className="p-5">
-
-            <h3 className="font-semibold">
-              {art.title}
-            </h3>
-
-            <Link
-              to={`/artist/${art.artist.id}`}
-              onClick={(e) => e.stopPropagation()}
-              className="text-sm text-[#D6A354] hover:underline"
-            >
-              by {art.artist.name}
-            </Link>
-
-            <p className="mt-3 font-semibold">
-              ₹{Number(art.price).toLocaleString("en-IN")}
-            </p>
-
-          </div>
-
-        </div>
-
-      </div>
-
+    {artworks.slice(0, 4).map((artwork) => (
+      <ArtworkCard
+        key={artwork.id}
+        id={artwork.id}
+        image={artwork.imageUrl}
+        title={artwork.title}
+        artist={artwork.artist.name}
+        likesCount={artwork._count.likes}
+        isLiked={artwork.likes?.length > 0}
+        isSaved={artwork.wishlists?.length > 0}
+      />
     ))}
 
   </div>

@@ -105,12 +105,13 @@ class ArtworkService {
       message: "Artwork deleted successfully",
     };
   }
-  async getExploreArtworks() {
+  async getExploreArtworks(userId?: string) {
   return prisma.artwork.findMany({
     where: {
       isApproved: true,
       isAvailable: true,
     },
+
     select: {
       id: true,
       title: true,
@@ -123,6 +124,36 @@ class ArtworkService {
       price: true,
       frameAvailable: true,
       createdAt: true,
+
+      likes: userId
+        ? {
+            where: {
+              userId,
+            },
+            select: {
+              id: true,
+            },
+          }
+        : false,
+
+      wishlists: userId
+        ? {
+            where: {
+              userId,
+            },
+            select: {
+              id: true,
+            },
+          }
+        : false,
+
+      _count: {
+        select: {
+          likes: true,
+          wishlists: true,
+        },
+      },
+
       artist: {
         select: {
           id: true,
@@ -130,11 +161,154 @@ class ArtworkService {
         },
       },
     },
+
     orderBy: {
       createdAt: "desc",
     },
   });
 }
+
+  async toggleLike(
+  artworkId: string,
+  userId: string
+) {
+  const existing = await prisma.like.findUnique({
+    where: {
+      userId_artworkId: {
+        userId,
+        artworkId,
+      },
+    },
+  });
+
+  if (existing) {
+    await prisma.like.delete({
+      where: {
+        id: existing.id,
+      },
+    });
+
+    const count = await prisma.like.count({
+      where: {
+        artworkId,
+      },
+    });
+
+    return {
+      liked: false,
+      likesCount: count,
+    };
+  }
+
+  await prisma.like.create({
+    data: {
+      userId,
+      artworkId,
+    },
+  });
+
+  const count = await prisma.like.count({
+    where: {
+      artworkId,
+    },
+  });
+
+  return {
+    liked: true,
+    likesCount: count,
+  };
+}
+
+async toggleWishlist(
+  artworkId: string,
+  userId: string
+) {
+  const existing =
+    await prisma.wishlist.findUnique({
+      where: {
+        userId_artworkId: {
+          userId,
+          artworkId,
+        },
+      },
+    });
+
+  if (existing) {
+    await prisma.wishlist.delete({
+      where: {
+        id: existing.id,
+      },
+    });
+
+    return {
+      saved: false,
+    };
+  }
+
+  await prisma.wishlist.create({
+    data: {
+      userId,
+      artworkId,
+    },
+  });
+
+  return {
+    saved: true,
+  };
+}
+
+async getWishlist(userId: string) {
+  return prisma.wishlist.findMany({
+    where: {
+      userId,
+    },
+
+    include: {
+      artwork: {
+        include: {
+          artist: {
+            select: {
+              name: true,
+            },
+          },
+
+          likes: {
+            where: {
+              userId,
+            },
+            select: {
+              id: true,
+            },
+          },
+
+          wishlists: {
+            where: {
+              userId,
+            },
+            select: {
+              id: true,
+            },
+          },
+
+          _count: {
+            select: {
+              likes: true,
+              wishlists: true,
+            },
+          },
+        },
+      },
+    },
+
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+}
+
+
+
+ 
 }
 
 export default new ArtworkService();

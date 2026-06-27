@@ -90,8 +90,14 @@ class ArtworkController {
     res: Response
   ) {
     try {
-      const artworks =
-        await artworkService.getExploreArtworks();
+   
+
+const userId = (req as any).user?.id;
+
+const artworks =
+  await artworkService.getExploreArtworks(
+    userId
+  );
 
       return res.status(200).json({
         success: true,
@@ -200,6 +206,94 @@ class ArtworkController {
       });
     }
   }
+
+
+async toggleLike(
+  req: Request,
+  res: Response
+) {
+  try {
+    const userId = (req as any).user.id;
+
+    const artworkId = Array.isArray(req.params.id)
+      ? req.params.id[0]
+      : req.params.id;
+
+    const result =
+      await artworkService.toggleLike(
+        artworkId,
+        userId
+      );
+
+    return res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
+async toggleWishlist(
+  req: Request,
+  res: Response
+) {
+  try {
+    const userId = (req as any).user.id;
+
+    const artworkId = Array.isArray(req.params.id)
+      ? req.params.id[0]
+      : req.params.id;
+
+    const result =
+      await artworkService.toggleWishlist(
+        artworkId,
+        userId
+      );
+
+    return res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
+async getWishlist(
+  req: Request,
+  res: Response
+) {
+  try {
+    const userId = (req as any).user.id;
+
+    const data =
+      await artworkService.getWishlist(
+        userId
+      );
+
+    return res.json({
+      success: true,
+      data,
+    });
+  } catch (error: any) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
+
+
+
+
 }
 
 export default new ArtworkController();

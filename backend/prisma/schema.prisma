@@ -14,9 +14,13 @@ model User {
   password      String
   role          Role           @default(USER)
   createdAt     DateTime       @default(now())
+
   artworks      Artwork[]
   inquiries     Inquiry[]
   artistProfile ArtistProfile?
+
+  likes         Like[]
+  wishlists     Wishlist[]
 }
 
 model Artwork {
@@ -50,6 +54,9 @@ model Artwork {
   artist User @relation(fields: [artistId], references: [id])
 
   inquiries Inquiry[]
+
+  likes Like[]
+  wishlists Wishlist[]
 }
 
 enum ArtistVerificationStatus {
@@ -124,4 +131,32 @@ enum InquiryStatus {
   CONFIRMED
   COMPLETED
   CANCELLED
+}
+
+model Like {
+  id String @id @default(cuid())
+
+  userId String
+  artworkId String
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  artwork Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, artworkId])
+}
+
+model Wishlist {
+  id String @id @default(cuid())
+
+  userId String
+  artworkId String
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  artwork Artwork @relation(fields: [artworkId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, artworkId])
 }

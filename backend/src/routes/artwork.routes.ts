@@ -14,8 +14,34 @@ router.post(
   artworkController.createArtwork
 );
 
+// Special routes first
+router.get(
+  "/explore",
+  authMiddleware,
+  artworkController.getExploreArtworks
+);
+
+router.post(
+  "/:id/like",
+  authMiddleware,
+  artworkController.toggleLike
+);
+
+router.post(
+  "/:id/wishlist",
+  authMiddleware,
+  artworkController.toggleWishlist
+);
+
+router.get(
+  "/wishlist/me",
+  authMiddleware,
+  artworkController.getWishlist
+);
+
+// Generic routes last
 router.get("/", artworkController.getAllArtworks);
-router.get("/explore", artworkController.getExploreArtworks);
+
 router.get("/:id", artworkController.getArtworkById);
 
 router.put(
@@ -31,5 +57,17 @@ router.delete(
   authorize("ARTIST", "ADMIN"),
   artworkController.deleteArtwork
 );
+
+ 
+
+
+
+
+
+
+
+
+
+
 
 export default router;

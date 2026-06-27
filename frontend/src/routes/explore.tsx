@@ -2,102 +2,183 @@ import AppHeader from "../components/layout/AppHeader";
 import SearchBar from "../components/common/SearchBar";
 import Footer from "../components/layout/Footer";
 import ArtworkCard from "../components/artwork/ArtworkCard";
-import { useEffect, useState } from "react";
+
+import { useEffect, useMemo, useState } from "react";
+
 import { getExploreArtworks } from "../api/artwork.api";
+
 const categories = [
   "All",
-  "Paintings",
-  "Digital Art",
-  "Spiritual",
-  "Nature",
-  "Photography",
-  "Abstract",
+  "SPIRITUAL",
+  "NATURE",
+  "PORTRAIT",
+  "ABSTRACT",
+  "LANDSCAPE",
+  "SKETCH",
+  "HERITAGE",
+  "MODERN",
+  "OTHER",
 ];
+
 export default function ExplorePage() {
-const [artworks, setArtworks] = useState<any[]>([]);
-const [loading, setLoading] = useState(true);
+  const [artworks, setArtworks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-  loadArtworks();
-}, []);
+  const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] =
+    useState("All");
 
-const loadArtworks = async () => {
-  try {
-    const data = await getExploreArtworks();
+  useEffect(() => {
+    loadArtworks();
+  }, []);
 
-    console.log(data);
+  const loadArtworks = async () => {
+    try {
+      const data = await getExploreArtworks();
 
-    setArtworks(data);
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setLoading(false);
+      console.log(data);
+
+      setArtworks(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredArtworks = useMemo(() => {
+    return artworks.filter((artwork) => {
+      const matchesSearch =
+        artwork.title
+          .toLowerCase()
+          .includes(search.toLowerCase()) ||
+        artwork.artist.name
+          .toLowerCase()
+          .includes(search.toLowerCase());
+
+      const matchesCategory =
+        selectedCategory === "All" ||
+        artwork.category === selectedCategory;
+
+      return (
+        matchesSearch &&
+        matchesCategory
+      );
+    });
+  }, [
+    artworks,
+    search,
+    selectedCategory,
+  ]);
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Loading...
+      </div>
+    );
   }
-};
-if (loading) {
-  return (
-    <div className="flex h-screen items-center justify-center">
-      Loading...
-    </div>
-  );
-}
+
   return (
     <div className="min-h-screen bg-[#FAF8F4]">
       <AppHeader />
 
-      <main className="max-w-[1600px] mx-auto px-6 py-10">
-        {/* <h1 className="mb-8 text-4xl font-serif  text-[#1B1B1B]">
-          Explore Arts
-        </h1> */}
-         <h1 className="font-serif mb-8  text-4xl text-[#1B1B1B]">
-            Explore Arts
-            </h1>
+      <main className="mx-auto max-w-[1600px] px-6 py-10">
 
-        <SearchBar />
+        <h1 className="mb-8 font-serif text-4xl text-[#1B1B1B]">
+          Explore Arts
+        </h1>
+
+        {/* SEARCH */}
+
+        <div className="mb-8">
+          <SearchBar
+            {...({
+              value: search,
+              onChange: (e: any) => setSearch(e.target.value),
+            } as any)}
+          />
+        </div>
+
+        {/* CATEGORY FILTERS */}
 
         <div className="mb-10 flex gap-3 overflow-x-auto pb-2">
-          {categories.map((category, index) => (
+
+          {categories.map((category) => (
             <button
               key={category}
-              className={`rounded-full px-6 py-3 whitespace-nowrap transition-all
-                ${
-                  index === 0
-                    ? "bg-black text-white"
-                    : "bg-white border border-[#ECE6DB]"
-                }`}
+              onClick={() =>
+                setSelectedCategory(
+                  category
+                )
+              }
+              className={`whitespace-nowrap rounded-full px-6 py-3 transition-all
+              ${
+                selectedCategory ===
+                category
+                  ? "bg-black text-white"
+                  : "border border-[#ECE6DB] bg-white"
+              }`}
             >
               {category}
             </button>
           ))}
+
         </div>
 
-        {/* Pinterest Layout */}
+        {/* ARTWORK GRID */}
 
-<div className="
-  grid
-  grid-cols-2
-  md:grid-cols-3
-  lg:grid-cols-4
-  xl:grid-cols-4
-  gap-6
-">
+        {filteredArtworks.length === 0 ? (
+          <div className="py-20 text-center">
 
-  {artworks.map((artwork) => (
-    <div
-      key={artwork.id}
-      className="break-inside-avoid mb-6"
-    >
-      <ArtworkCard
+            <h2 className="text-2xl font-semibold">
+              No artworks found
+            </h2>
+
+            <p className="mt-3 text-gray-500">
+              Try changing your search or filter.
+            </p>
+
+          </div>
+        ) : (
+          <div
+            className="
+            grid
+            grid-cols-2
+            gap-6
+            md:grid-cols-3
+            lg:grid-cols-4
+            xl:grid-cols-4
+          "
+          >
+            {filteredArtworks.map(
+              (artwork) => (
+                <div
+                  key={artwork.id}
+                  className="mb-6 break-inside-avoid"
+                >
+                  <ArtworkCard
   id={artwork.id}
   image={artwork.imageUrl}
   title={artwork.title}
   artist={artwork.artist.name}
-  price={artwork.price}
-/>
-    </div>
-  ))}
+ likesCount={
+  artwork._count.likes
+}
 
-</div>
+isLiked={
+  artwork.likes.length > 0
+}
+
+isSaved={
+  artwork.wishlists.length > 0
+}
+/>
+                </div>
+              )
+            )}
+          </div>
+        )}
       </main>
 
       <Footer />
