@@ -261,6 +261,72 @@ async getArtistById(id: string) {
 
   return artist;
 }
+// ===========================
+// Artist Analytics
+// ===========================
+
+async getAnalytics(userId: string) {
+
+  const totalArtworks = await prisma.artwork.count({
+    where: {
+      artistId: userId,
+    },
+  });
+
+  const approvedArtworks = await prisma.artwork.count({
+    where: {
+      artistId: userId,
+      isApproved: true,
+    },
+  });
+
+  const pendingArtworks = await prisma.artwork.count({
+    where: {
+      artistId: userId,
+      isApproved: false,
+    },
+  });
+
+  const totalInquiries = await prisma.inquiry.count({
+    where: {
+      artwork: {
+        artistId: userId,
+      },
+    },
+  });
+
+  const categoryStats = await prisma.artwork.groupBy({
+    by: ["category"],
+
+    where: {
+      artistId: userId,
+      isApproved: true,
+    },
+
+    _count: {
+      category: true,
+    },
+  });
+
+  const approvalRate =
+    totalArtworks === 0
+      ? 0
+      : Math.round(
+          (approvedArtworks / totalArtworks) * 100
+        );
+
+  return {
+    stats: {
+      totalArtworks,
+      approvedArtworks,
+      pendingArtworks,
+      totalInquiries,
+      approvalRate,
+    },
+
+    categoryStats,
+  };
+}
 }
 
 export default new ArtistService();

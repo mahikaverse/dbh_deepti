@@ -47,3 +47,11 @@ export async function getArtist(id: string) {
   const res = await api.get(`/api/artist/${id}`);
   return res.data.data;
 }
+
+export async function getArtistAnalytics() {
+  const res = await api.get(
+    "/api/artist/analytics"
+  );
+
+  return res.data.data;
+}

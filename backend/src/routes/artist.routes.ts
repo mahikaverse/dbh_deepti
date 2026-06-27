@@ -35,6 +35,12 @@ router.get(
 );
 
 router.get(
+  "/analytics",
+  authMiddleware,
+  artistController.getAnalytics
+);
+
+router.get(
   "/",
   artistController.getApprovedArtists
 );
@@ -43,5 +49,6 @@ router.get(
   "/:id",
   artistController.getArtistById
 );
+
 
 export default router;

@@ -140,6 +140,28 @@ async getArtistById(req: Request, res: Response) {
     });
   }
 }
+// ===========================
+// Artist Analytics
+// ===========================
+
+async getAnalytics(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user.id;
+
+    const analytics =
+      await artistService.getAnalytics(userId);
+
+    return res.status(200).json({
+      success: true,
+      data: analytics,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
 }
 
 export default new ArtistController();
