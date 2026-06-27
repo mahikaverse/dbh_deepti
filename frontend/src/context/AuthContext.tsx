@@ -6,6 +6,7 @@ import {
 } from "react";
 
 import { me } from "../api/auth.api";
+import { clearArtistStatusCache } from "../hooks/useArtistStatus";
 import {
   clearTokens,
   getAccessToken,
@@ -70,6 +71,7 @@ export function AuthProvider({
 
   function logout() {
     clearTokens();
+    clearArtistStatusCache();
     setUser(null);
 
     window.location.href = "/login";

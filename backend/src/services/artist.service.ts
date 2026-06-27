@@ -3,26 +3,163 @@ import AppError from "../errors/AppError";
 import { ApplyArtistInput } from "../validators/artist.validator";
 
 class ArtistService {
-  async apply(userId: string, data: ApplyArtistInput) {
-    const existing = await prisma.artistProfile.findUnique({
+  async apply(
+  userId: string,
+  data: ApplyArtistInput
+) {
+  const existing =
+    await prisma.artistProfile.findUnique({
       where: {
         userId,
       },
     });
 
-    if (existing) {
-      throw new AppError("Artist profile already exists", 409);
+  // ===========================
+  // Already under review
+  // ===========================
+
+  if (
+    existing &&
+    existing.status === "PENDING"
+  ) {
+    throw new AppError(
+      "Your artist application is already under review. We'll notify you once our team completes the verification process.",
+      409
+    );
+  }
+
+  // ===========================
+  // Already approved artist
+  // ===========================
+
+  if (
+    existing &&
+    existing.status === "APPROVED"
+  ) {
+    throw new AppError(
+      "You are already a verified artist on Deepti Art.",
+      409
+    );
+  }
+
+  // ===========================
+  // Re-Apply after rejection
+  // ===========================
+
+  if (
+    existing &&
+    existing.status === "REJECTED"
+  ) {
+    const updatedProfile =
+      await prisma.artistProfile.update({
+        where: {
+          userId,
+        },
+
+        data: {
+          phone: data.phone,
+          bio: data.bio,
+          address: data.address,
+          dob: data.dob,
+          instagram: data.instagram,
+          portfolio: data.portfolio,
+          profileImage:
+            data.profileImage,
+
+          status: "PENDING",
+          rejectionReason: null,
+        },
+      });
+
+    // Notify Admins
+
+    const admins =
+      await prisma.user.findMany({
+        where: {
+          role: "ADMIN",
+        },
+
+        select: {
+          id: true,
+        },
+      });
+
+    if (admins.length > 0) {
+      await prisma.notification.createMany({
+        data: admins.map(
+          (admin) => ({
+            userId: admin.id,
+
+            title:
+              "Artist Application Resubmitted",
+
+            message:
+              "A previously rejected artist has updated their details and submitted a new application for review.",
+
+            type: "INFO",
+          })
+        ),
+      });
     }
 
-    const profile = await prisma.artistProfile.create({
+    return updatedProfile;
+  }
+
+  // ===========================
+  // First Application
+  // ===========================
+
+  const profile =
+    await prisma.artistProfile.create({
       data: {
         userId,
-        ...data,
+
+        phone: data.phone,
+        bio: data.bio,
+        address: data.address,
+        dob: data.dob,
+        instagram: data.instagram,
+        portfolio: data.portfolio,
+        profileImage:
+          data.profileImage,
+
+        status: "PENDING",
       },
     });
 
-    return profile;
+  // Notify Admins
+
+  const admins =
+    await prisma.user.findMany({
+      where: {
+        role: "ADMIN",
+      },
+
+      select: {
+        id: true,
+      },
+    });
+
+  if (admins.length > 0) {
+    await prisma.notification.createMany({
+      data: admins.map(
+        (admin) => ({
+          userId: admin.id,
+
+          title:
+            "New Artist Application",
+
+          message:
+            "A new artist verification request has been submitted and is awaiting review.",
+
+          type: "INFO",
+        })
+      ),
+    });
   }
+
+  return profile;
+}
 
   async getProfile(userId: string) {
     const profile = await prisma.artistProfile.findUnique({

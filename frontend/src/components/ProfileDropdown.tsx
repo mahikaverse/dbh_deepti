@@ -99,6 +99,18 @@ export default function ProfileDropdown() {
               </Link>
             </>
           )}
+
+          {/* Approved */}
+
+          {(user.role === "ARTIST" ||
+            artistStatus?.status === "APPROVED") && (
+            <Link
+              to="/artist/dashboard"
+              className="block rounded-lg px-4 py-3 font-medium text-[#D6A354] hover:bg-[#FFF8EC]"
+            >
+              🎨 Artist Dashboard
+            </Link>
+          )}
         </>
       )}
 

@@ -44,6 +44,7 @@ export default function AppHeader() {
     artistStatus,
     loading,
   } = useArtistStatus();
+  
 
   const avatarUrl =
     user?.avatar ||
@@ -165,16 +166,19 @@ export default function AppHeader() {
               Inquiries
             </Link>
 
-            {!loading &&
-              user?.role === "USER" &&
-              !artistStatus?.hasProfile && (
-                <Link
-                  to="/become-artist"
-                  className="rounded-full bg-[#D6A354] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#C69649]"
-                >
-                  Become Artist
-                </Link>
-              )}
+            {
+  !loading &&
+  user?.role === "USER" &&
+  artistStatus?.status !== "PENDING" &&
+  artistStatus?.status !== "APPROVED" && (
+    <Link
+      to="/become-artist"
+      className="rounded-full bg-[#D6A354] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#C69649]"
+    >
+      Become Artist
+    </Link>
+  )
+}
 
             {!loading &&
               artistStatus?.status ===
@@ -184,7 +188,8 @@ export default function AppHeader() {
                 </span>
               )}
 
-            {user?.role === "ARTIST" && (
+            {(user?.role === "ARTIST" ||
+              artistStatus?.status === "APPROVED") && (
               <Link
                 to="/artist/dashboard"
                 className="rounded-full bg-[#08233F] px-4 py-2 text-sm font-medium text-white"

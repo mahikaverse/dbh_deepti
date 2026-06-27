@@ -32,74 +32,144 @@ class AdminService {
   // ===========================
 
   async approveArtist(profileId: string) {
-    const profile = await prisma.artistProfile.findUnique({
+  const profile =
+    await prisma.artistProfile.findUnique({
       where: {
         id: profileId,
       },
     });
 
-    if (!profile) {
-      throw new AppError("Artist profile not found", 404);
-    }
+  if (!profile) {
+    throw new AppError(
+      "Artist profile not found",
+      404
+    );
+  }
 
-    if (profile.status === "APPROVED") {
-      throw new AppError("Artist already approved", 400);
-    }
+  if (profile.status === "APPROVED") {
+    throw new AppError(
+      "Artist already approved",
+      400
+    );
+  }
 
-    return prisma.$transaction(async (tx) => {
-      const updatedProfile = await tx.artistProfile.update({
-        where: {
-          id: profileId,
-        },
-        data: {
-          status: "APPROVED",
-          rejectionReason: null,
-        },
-      });
+  return prisma.$transaction(
+    async (tx) => {
+
+      const updatedProfile =
+        await tx.artistProfile.update({
+          where: {
+            id: profileId,
+          },
+
+          data: {
+            status: "APPROVED",
+            rejectionReason: null,
+          },
+        });
 
       await tx.user.update({
         where: {
           id: profile.userId,
         },
+
         data: {
           role: "ARTIST",
         },
       });
 
+      await tx.notification.create({
+        data: {
+          userId: profile.userId,
+
+          title:
+            "Artist Application Approved",
+
+          message:
+            "Congratulations! Your artist profile has been approved. You can now upload and sell artworks on Deepti Art.",
+
+          type: "SUCCESS",
+        },
+      });
+
       return updatedProfile;
-    });
-  }
+    }
+  );
+}
+  
 
   // ===========================
   // Reject Artist
   // ===========================
 
-  async rejectArtist(profileId: string, reason: string) {
-    const profile = await prisma.artistProfile.findUnique({
+  async rejectArtist(
+  profileId: string,
+  reason: string
+) {
+  const profile =
+    await prisma.artistProfile.findUnique({
       where: {
         id: profileId,
       },
     });
 
-    if (!profile) {
-      throw new AppError("Artist profile not found", 404);
-    }
-
-    if (profile.status === "REJECTED") {
-      throw new AppError("Artist already rejected", 400);
-    }
-
-    return prisma.artistProfile.update({
-      where: {
-        id: profileId,
-      },
-      data: {
-        status: "REJECTED",
-        rejectionReason: reason,
-      },
-    });
+  if (!profile) {
+    throw new AppError(
+      "Artist profile not found",
+      404
+    );
   }
 
+  if (profile.status === "REJECTED") {
+    throw new AppError(
+      "Artist already rejected",
+      400
+    );
+  }
+
+  return prisma.$transaction(
+    async (tx) => {
+
+      const updatedProfile =
+        await tx.artistProfile.update({
+          where: {
+            id: profileId,
+          },
+
+          data: {
+            status: "REJECTED",
+            rejectionReason: reason,
+          },
+        });
+
+      await tx.user.update({
+        where: {
+          id: profile.userId,
+        },
+
+        data: {
+          role: "USER",
+        },
+      });
+
+      await tx.notification.create({
+        data: {
+          userId: profile.userId,
+
+          title:
+            "Artist Application Rejected",
+
+          message:
+            `Reason: ${reason}. Please update your details and submit your application again.`,
+
+          type: "WARNING",
+        },
+      });
+
+      return updatedProfile;
+    }
+  );
+}
   // ===========================
 // Dashboard Analytics
 // ===========================
