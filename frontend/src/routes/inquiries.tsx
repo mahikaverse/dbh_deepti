@@ -45,7 +45,7 @@ export default function InquiriesPage() {
 
       <AppHeader />
 
-      <main className="max-w-7xl mx-auto px-6 py-10">
+      <main className="max-w-6xl mx-auto px-6 py-10">
 
         {/* Header */}
 

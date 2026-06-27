@@ -10,7 +10,7 @@ import inquiryRoutes from "./routes/inquiry.routes";
 import uploadRoutes from "./routes/upload.routes";
 import errorMiddleware from "./middleware/error.middleware";
 import devRoutes from "./routes/dev.routes";
-
+import notificationRoutes from "./routes/notification.routes";
 dotenv.config();
 
 const app = express();
@@ -46,6 +46,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/inquiries", inquiryRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/dev", devRoutes);
+app.use( "/api/notifications", notificationRoutes );
 app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 5000;

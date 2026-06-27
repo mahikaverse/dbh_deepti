@@ -40,7 +40,7 @@ async function handleLogin() {
     await refreshUser();
 
     if (data.user.role === "ADMIN") {
-  navigate("/admin/dashboard");
+  navigate("/");
   return;
 }
 
