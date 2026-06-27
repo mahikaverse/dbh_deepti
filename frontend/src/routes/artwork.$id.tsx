@@ -7,13 +7,16 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import AppHeader from "../components/layout/AppHeader";
 import Footer from "../components/layout/Footer";
- 
+import { useState } from "react";
+import InquiryFormModal from "../components/artwork/InquiryFormModal";
 import { Link, useParams } from "react-router-dom";
+ 
 
 export default function ArtworkDetailsPage() {
       const { id } = useParams();
       const { user } = useAuth();
       const navigate = useNavigate();
+      const [openInquiry, setOpenInquiry] = useState(false);
   return (
     <div className="min-h-screen bg-[#FAF8F4]">
       <AppHeader />
@@ -134,12 +137,12 @@ export default function ArtworkDetailsPage() {
     Express Interest
   </button>
 ) : user.role === "USER" ? (
-  <Link
-    to={`/inquiry/${id}`}
-    className="flex-1 rounded-xl bg-[#D6A354] py-3 text-center font-medium text-white hover:bg-[#C69649]"
-  >
-    Express Interest
-  </Link>
+  <button
+  onClick={() => setOpenInquiry(true)}
+  className="flex-1 rounded-xl bg-[#D6A354] py-3 text-center font-medium text-white hover:bg-[#C69649]"
+>
+  Express Interest
+</button>
 ) : null}
 
               </div>
@@ -200,6 +203,13 @@ export default function ArtworkDetailsPage() {
         </div>
 
       </main>
+      
+{openInquiry && (
+  <InquiryFormModal
+    artworkId={id!}
+    onClose={() => setOpenInquiry(false)}
+  />
+)}
 
       <Footer />
     </div>
