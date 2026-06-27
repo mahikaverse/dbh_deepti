@@ -16,6 +16,15 @@ interface User {
   name: string;
   email: string;
   role: "USER" | "ARTIST" | "ADMIN";
+
+  avatar?: string;
+  username?: string;
+  bio?: string;
+  location?: string;
+  instagram?: string;
+  website?: string;
+
+  createdAt?: string;
 }
 
 interface AuthContextType {

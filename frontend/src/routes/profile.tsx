@@ -6,6 +6,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import AppHeader from "../components/layout/AppHeader";
@@ -13,6 +14,43 @@ import Footer from "../components/layout/Footer";
 
 export default function ProfilePage() {
 const { user } = useAuth();
+
+const [isEditing, setIsEditing] = useState(false);
+
+const [formData, setFormData] = useState({
+  name: user?.name || "",
+  username: user?.username || "",
+  email: user?.email || "",
+  bio: user?.bio || "",
+  location: user?.location || "",
+  instagram: user?.instagram || "",
+  website: user?.website || "",
+});
+
+const handleChange = (
+  e: React.ChangeEvent<
+    HTMLInputElement | HTMLTextAreaElement
+  >
+) => {
+  setFormData({
+    ...formData,
+    [e.target.name]: e.target.value,
+  });
+};
+
+const handleSave = async () => {
+  try {
+    // API call yaha aayega later
+
+    console.log(formData);
+
+    setIsEditing(false);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+
 if (!user) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#FAF8F4]">
@@ -53,41 +91,219 @@ if (!user) {
               <div>
 
                 <img
-                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  user.name
-                )}&background=D6A354&color=ffffff&size=256`}
-                alt={user.name}
-                className="h-32 w-32 rounded-full border-4 border-white object-cover shadow-lg"
-              />
+  src={
+    user.avatar ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      user.name
+    )}&background=D6A354&color=ffffff&size=256`
+  }
+  alt={user.name}
+  className="h-32 w-32 rounded-full border-4 border-white object-cover shadow-lg"
+/>
 
-                <h1 className="mt-4 text-4xl font-serif text-[#1B1B1B]">
-                 {user.name}
-                </h1>
+                {
+                isEditing ? (
+                  <input
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="mt-4 rounded-xl border border-[#ECE6DB] p-3 text-4xl font-serif outline-none"
+                  />
+                ) : (
+                  <h1 className="mt-4 text-4xl font-serif text-[#1B1B1B]">
+                    {formData.name}
+                  </h1>
+                )
+              }
+
+                {
+                isEditing ? (
+                  <input
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    placeholder="username"
+                    className="mt-2 rounded-xl border border-[#ECE6DB] p-3 outline-none"
+                  />
+                ) : (
+                  formData.username && (
+                    <p className="mt-1 text-[#D6A354] text-lg">
+                      @{formData.username}
+                    </p>
+                  )
+                )
+              }
                 
+                {
+              isEditing ? (
+                <input
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="mt-2 rounded-xl border border-[#ECE6DB] p-3 outline-none"
+                />
+              ) : (
                 <p className="mt-2 text-gray-600">
-                {user.email}
+                  {formData.email}
                 </p>
+              )
+            }
+
+                {
+              isEditing ? (
+                <textarea
+                  name="bio"
+                  placeholder="bio"
+                  value={formData.bio}
+                  onChange={handleChange}
+                  rows={4}
+                  className="mt-4 w-full rounded-xl border border-[#ECE6DB] p-4 outline-none"
+                />
+              ) : (
+                <p className="mt-4 max-w-2xl text-gray-600 leading-relaxed">
+                  {formData.bio ||
+                    "Art enthusiast exploring original creations and discovering talented artists around the world."}
+                </p>
+              )
+            }
+               {
+              isEditing ? (
+                <div className="mt-4 flex flex-col gap-3">
+
+                  <input
+                    name="location"
+                    placeholder="Location"
+                    value={formData.location}
+                    onChange={handleChange}
+                    className="rounded-xl border border-[#ECE6DB] p-3 outline-none"
+                  />
+
+                  <input
+                    name="instagram"
+                    placeholder="Instagram Username"
+                    value={formData.instagram}
+                    onChange={handleChange}
+                    className="rounded-xl border border-[#ECE6DB] p-3 outline-none"
+                  />
+
+                  <input
+                    name="website"
+                    placeholder="Website"
+                    value={formData.website}
+                    onChange={handleChange}
+                    className="rounded-xl border border-[#ECE6DB] p-3 outline-none"
+                  />
+
+                </div>
+              ) : (
+                <div className="mt-4 flex flex-wrap gap-5 text-sm text-gray-500">
+
+                  {formData.location && (
+                    <span>📍 {formData.location}</span>
+                  )}
+
+                  {formData.instagram && (
+                    <span>📷 @{formData.instagram}</span>
+                  )}
+
+                  {formData.website && (
+                    <a
+                      href={formData.website}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[#D6A354]"
+                    >
+                      🌐 Website
+                    </a>
+                  )}
+
+                </div>
+              )
+            }
 
 
 
-                <p className="mt-1 text-gray-500">
-                  {user.role === "ADMIN"
+                <div className="mt-4">
+
+              <span
+                className={`
+                  inline-flex rounded-full px-4 py-2 text-sm font-medium
+                  ${
+                    user.role === "ADMIN"
+                      ? "bg-red-100 text-red-700"
+                      : user.role === "ARTIST"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-blue-100 text-blue-700"
+                  }
+                `}
+              >
+                {user.role === "ADMIN"
                   ? "Administrator"
                   : user.role === "ARTIST"
                   ? "Verified Artist"
                   : "Art Collector"}
-                </p>
+              </span>
+
+            </div>
 
                  
-                <p className="mt-2 text-sm text-gray-400">
-                 Member of Deepti Art
+                <p className="mt-4 text-sm text-gray-400">
+                  Member of Deepti Art Community
                 </p>
 
               </div>
 
-              <button className="mt-5 md:mt-0 rounded-xl bg-[#D6A354] px-6 py-3 text-white font-medium hover:bg-[#C69649]">
-                Edit Profile
-              </button>
+             <div className="mt-5 flex flex-col gap-3 md:mt-0">
+
+              {
+              !isEditing ? (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="rounded-xl bg-[#D6A354] px-6 py-3 font-medium text-white hover:bg-[#C69649]"
+                >
+                  Edit Profile
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={handleSave}
+                    className="rounded-xl bg-green-600 px-6 py-3 font-medium text-white"
+                  >
+                    Save Changes
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setIsEditing(false);
+
+                      setFormData({
+                        name: user.name,
+                        username: user.username || "",
+                        email: user.email,
+                        bio: user.bio || "",
+                        location: user.location || "",
+                        instagram: user.instagram || "",
+                        website: user.website || "",
+                      });
+                    }}
+                    className="rounded-xl border border-[#ECE6DB] px-6 py-3"
+                  >
+                    Cancel
+                  </button>
+                </>
+              )
+            }
+
+              {user.role === "USER" && (
+                <Link
+                  to="/become-artist"
+                  className="rounded-xl bg-[#08233F] px-6 py-3 text-center font-medium text-white"
+                >
+                  Become Artist
+                </Link>
+              )}
+
+            </div>
 
             </div>
 
@@ -95,26 +311,7 @@ if (!user) {
 
         </div>
 
-        {/* STATS */}
-
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
-
-          <StatCard
-            value="12"
-            label="Saved Artworks"
-          />
-
-          <StatCard
-            value="6"
-            label="Inquiries"
-          />
-
-          <StatCard
-            value="8"
-            label="Following Artists"
-          />
-
-        </div>
+         
 
         {/* QUICK ACTIONS */}
 
@@ -170,25 +367,13 @@ if (!user) {
 
             <div className="space-y-6">
 
-              <ActivityItem
-                title='Saved "Lotus Serenity"'
-                time="2 hours ago"
-              />
+              <div className="rounded-[32px] border border-[#ECE6DB] bg-white p-12 text-center">
 
-              <ActivityItem
-                title='Submitted Inquiry for "Sunset Over Silence"'
-                time="Yesterday"
-              />
+            <p className="text-lg text-gray-500">
+              Your activity history will appear here as you interact with artworks and artists.
+            </p>
 
-              <ActivityItem
-                title="Started Following Priya Sharma"
-                time="3 days ago"
-              />
-
-              <ActivityItem
-                title='Saved "Golden Horizon"'
-                time="1 week ago"
-              />
+          </div>
 
             </div>
 

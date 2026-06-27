@@ -43,7 +43,7 @@ import ArtistInquiryPage from "./artist/pages/inquiries";
 import SalesPage from "./artist/pages/sales";
 import AnalyticsPage from "./artist/pages/analytics";
 import ArtistProfile from "./artist/pages/profile";
-import ArtistSettingsPage from "./artist/pages/settings";
+// import ArtistSettingsPage from "./artist/pages/settings";
 
 function App() {
   return (
@@ -188,14 +188,14 @@ function App() {
           }
         />
 
-        <Route
+        {/* <Route
           path="/artist/settings"
           element={
             
               <ArtistSettingsPage />
             
           }
-        />
+        /> */}
 
         {/* ================= ADMIN ROUTES ================= */}
 

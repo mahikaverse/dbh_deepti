@@ -42,14 +42,14 @@ const menu = [
     path: "/artist/sales",
     icon: Wallet,
   },
-  {
-    title: "Profile",
-    path: "/artist/profile",
-    icon: User,
-  },
+  // {
+  //   title: "Profile",
+  //   path: "/artist/profile",
+  //   icon: User,
+  // },
   {
     title: "Settings",
-    path: "/artist/settings",
+    path: "/settings",
     icon: Settings,
   },
 ];
@@ -60,22 +60,33 @@ export default function ArtistSidebar() {
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[280px] flex-col border-r border-[#ECE6DB] bg-white md:flex">
       <div className="flex flex-shrink-0 items-center gap-3 p-6">
-        <img
-          src={logo}
-          alt="Deepti Art"
-          className="h-14 w-auto"
-        />
+         {/* Logo */}
 
-        <div>
-          <h2 className="font-serif text-xl font-semibold text-[#1B1B1B]">
-            Deepti Art
-          </h2>
+                    <Link
+            to="/"
+            className="flex items-center gap-3"
+          >
+            <img
+              src={logo}
+              alt="Deepti Art"
+              className="h-11 w-11 object-contain"
+            />
 
-          <p className="text-xs text-gray-500">
+            <div>
+              <h1 className="font-serif text-[20px] font-semibold leading-none text-[#1d1d1d]">
+                Deepti Art
+              </h1>
+
+              <p className="text-xs text-gray-500">
             Artist Studio
           </p>
-        </div>
+
+               
+            </div>
+          </Link>
       </div>
+
+ 
 
       <nav className="flex-1 overflow-y-auto p-4">
         <div className="space-y-2">
