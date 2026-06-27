@@ -128,72 +128,72 @@ function App() {
         <Route
           path="/artist/dashboard"
           element={
-            <ArtistProtectedRoute>
+             
               <ArtistDashboard />
-            </ArtistProtectedRoute>
+            
           }
         />
 
         <Route
           path="/artist/upload-artwork"
           element={
-            <ArtistProtectedRoute>
+             
               <UploadArtworkPage />
-            </ArtistProtectedRoute>
+            
           }
         />
 
         <Route
           path="/artist/my-artworks"
           element={
-            <ArtistProtectedRoute>
+             
               <MyArtworksPage />
-            </ArtistProtectedRoute>
+            
           }
         />
 
         <Route
           path="/artist/inquiries"
           element={
-            <ArtistProtectedRoute>
+            
               <ArtistInquiryPage />
-            </ArtistProtectedRoute>
+           
           }
         />
 
         <Route
           path="/artist/sales"
           element={
-            <ArtistProtectedRoute>
+             
               <SalesPage />
-            </ArtistProtectedRoute>
+            
           }
         />
 
         <Route
           path="/artist/analytics"
           element={
-            <ArtistProtectedRoute>
+             
               <AnalyticsPage />
-            </ArtistProtectedRoute>
+             
           }
         />
 
         <Route
           path="/artist/profile"
           element={
-            <ArtistProtectedRoute>
+            
               <ArtistProfile />
-            </ArtistProtectedRoute>
+             
           }
         />
 
         <Route
           path="/artist/settings"
           element={
-            <ArtistProtectedRoute>
+            
               <ArtistSettingsPage />
-            </ArtistProtectedRoute>
+            
           }
         />
 
@@ -204,63 +204,63 @@ function App() {
         <Route
           path="/admin/dashboard"
           element={
-            <AdminProtectedRoute>
+            
               <AdminDashboard />
-            </AdminProtectedRoute>
+            
           }
         />
 
         <Route
           path="/admin/inquiries"
           element={
-            <AdminProtectedRoute>
+             
               <AdminInquiries />
-            </AdminProtectedRoute>
+            
           }
         />
 
         <Route
           path="/admin/artists"
           element={
-            <AdminProtectedRoute>
+             
               <AdminArtists />
-            </AdminProtectedRoute>
+             
           }
         />
 
         <Route
           path="/admin/artworks"
           element={
-            <AdminProtectedRoute>
+            
               <AdminArtworks />
-            </AdminProtectedRoute>
+            
           }
         />
 
         <Route
           path="/admin/users"
           element={
-            <AdminProtectedRoute>
+             
               <AdminUsers />
-            </AdminProtectedRoute>
+            
           }
         />
 
         <Route
           path="/admin/notifications"
           element={
-            <AdminProtectedRoute>
+             
               <AdminNotifications />
-            </AdminProtectedRoute>
+             
           }
         />
 
         <Route
           path="/admin/analytics"
           element={
-            <AdminProtectedRoute>
+             
               <AdminAnalytics />
-            </AdminProtectedRoute>
+             
           }
         />
 

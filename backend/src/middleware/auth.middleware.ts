@@ -26,11 +26,12 @@ export default function authMiddleware(
     }
 
     const decoded = verifyAccessToken(token);
-
+    console.log("TOKEN VERIFIED:", decoded);
     (req as any).user = decoded;
 
     next();
   } catch (error) {
+    console.log(error);
     return res.status(401).json({
       success: false,
       message: "Invalid or expired token",

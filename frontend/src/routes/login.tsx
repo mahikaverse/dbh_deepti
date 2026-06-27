@@ -47,7 +47,7 @@ async function handleLogin() {
 navigate("/");
 
     if (data.user.role === "ARTIST") {
-      navigate("/artist/dashboard");
+      navigate("/");
       return;
     }
 
